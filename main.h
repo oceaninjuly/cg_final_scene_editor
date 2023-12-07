@@ -2,8 +2,8 @@
 #include<Shader/shader.h>
 #include <camera/camera.h>
 // settings
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 900;
+const unsigned int SCR_WIDTH = 1120;
+const unsigned int SCR_HEIGHT = 630;
 unsigned int VAO_cube = 0;
 unsigned int VAO_sky = 0;
 //光照贴图
