@@ -146,6 +146,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Axis_generator.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="obj.h" />
     <ClInclude Include="object.h" />

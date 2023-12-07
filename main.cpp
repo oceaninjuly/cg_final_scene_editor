@@ -12,6 +12,7 @@
 #include"main.h"
 #include"pointlit.h"
 #include"ground.h"
+#include"Axis_generator.h"
 //shader_model
 std::vector<BaseModelObj*> shadermodel_list;
 //point_light
@@ -20,6 +21,8 @@ std::vector<Pointlight*> point_lights;
 unsigned int framebuffer;
 unsigned int textureColorbuffer, posbuffer, normalbuffer,specolorbuffer,objidbuffer;
 Shader deffered_shader;
+//Axis
+Axismodel* axismodel;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -189,6 +192,8 @@ void rend(){
     glEnable(GL_DEPTH_TEST);
     //点光源模型
     lightshadermdl->render(lightPos,projection,view,camera.Position);
+    //坐标指示器绘制
+    if(ground_grid) axismodel->Draw(projection, view);
     //渲染天空盒
     glDepthFunc(GL_LEQUAL);
     glActiveTexture(GL_TEXTURE0);
@@ -292,7 +297,8 @@ int main(){
     VAO_sky = creatSkyBoxVAO();
     _textureSky = createSkyBoxTex();
     _shader_sky.initialize("sdrs/skybox.vs","sdrs/skybox.fs");
-
+    //初始化Axis
+    axismodel = new Axismodel();
     //生成模型和对应着色器
     lightshadermdl = new Lightmdl();
     groundshadermdl = new Groundmdl("texture/grass.jpg");
@@ -407,6 +413,7 @@ int main(){
     delete groundobj;
     delete lightshadermdl;
     delete groundshadermdl;
+    delete axismodel;
     glfwTerminate();
     return 0;
 }
@@ -415,7 +422,8 @@ int main(){
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    static float C_last_time=0,UP_last_time=0,DOWN_last_time=0,picking_last_time=0, O_last_time=0, X_last_time=0;
+    static float C_last_time=0,UP_last_time=0,DOWN_last_time=0,picking_last_time=0, O_last_time=0, X_last_time=0,
+        Q_last_time=0;
     static int P_pressed = 0,LALT_pressed=0;
     static float last_time_0 = 0, last_time_1 = 0, last_time_2 = 0, last_time_3 = 0, last_time_4 = 0;
     
@@ -604,6 +612,13 @@ void processInput(GLFWwindow *window)
         
         UP_last_time = glfwGetTime();
         
+    }
+    //网格模式打开/关闭
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        if (glfwGetTime() - Q_last_time > 0.5) {
+            ground_grid = 1 - ground_grid;
+            Q_last_time = glfwGetTime();
+        }
     }
 }
 
