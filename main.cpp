@@ -43,6 +43,9 @@ GLuint cubeVBO = 0;
 Object* target_obj=nullptr;
 Object* last_obj = nullptr;
 
+// 全局变量，渲染风格标记和总数
+uint render_style = 0;
+uint render_style_number = 5;
 
 void framebufinit() {
     glGenFramebuffers(1, &framebuffer);
@@ -200,6 +203,9 @@ void rend(){
     glBindTexture(GL_TEXTURE_CUBE_MAP, _textureSky);
 
     _shader_sky.use();
+    _shader_sky.setUint("render_style", render_style);
+    float currentTime = static_cast<float>(glfwGetTime());
+    _shader_sky.setFloat("time", currentTime);
     _shader_sky.setMat4("_viewMatrix", camera.GetSkyviewMatrix());    //设置观察矩阵；
     _shader_sky.setMat4("_projMatrix", projection);    //设置投影矩阵；
     glBindVertexArray(VAO_sky);
@@ -208,6 +214,9 @@ void rend(){
 }
 
 void Deffer_setting() {
+    float currentTime = static_cast<float>(glfwGetTime());
+    deffered_shader.setUint("render_style", (GLuint)render_style);
+    deffered_shader.setFloat("time", currentTime);
     deffered_shader.setInt("gPosition", 0);
     deffered_shader.setInt("gNormal", 1);
     deffered_shader.setInt("gAlbedoSpec", 2);
@@ -276,7 +285,6 @@ int main(){
             return -1;
         }
         glfwMakeContextCurrent(window);
-        glfwMakeContextCurrent(window);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
         glfwSetCursorPosCallback(window, mouse_callback);
         glfwSetScrollCallback(window, scroll_callback);
@@ -291,12 +299,12 @@ int main(){
     }
     //初始化framebuffer
     framebufinit();
-    Shader deffered_shader_("./sdrs/s2.vs", "./sdrs/s2_phong.fs");
+    Shader deffered_shader_("./sdrs/s2.vs", "./sdrs/sshader/s2_phong.fs");
     deffered_shader = deffered_shader_;
     //生成天空盒(顶点对象，纹理)
     VAO_sky = creatSkyBoxVAO();
     _textureSky = createSkyBoxTex();
-    _shader_sky.initialize("sdrs/skybox.vs","sdrs/skybox.fs");
+    _shader_sky.initialize("sdrs/skybox.vs","sdrs/sshader/skybox.fs");
     //初始化Axis
     axismodel = new Axismodel();
     //生成模型和对应着色器
@@ -422,8 +430,7 @@ int main(){
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    static float C_last_time=0,UP_last_time=0,DOWN_last_time=0,picking_last_time=0, O_last_time=0, X_last_time=0,
-        Q_last_time=0;
+    static float C_last_time=0,UP_last_time=0,DOWN_last_time=0,picking_last_time=0, O_last_time=0, X_last_time=0, Q_last_time = 0, TAB_last_time;
     static int P_pressed = 0,LALT_pressed=0;
     static float last_time_0 = 0, last_time_1 = 0, last_time_2 = 0, last_time_3 = 0, last_time_4 = 0;
     
@@ -619,6 +626,13 @@ void processInput(GLFWwindow *window)
             ground_grid = 1 - ground_grid;
             Q_last_time = glfwGetTime();
         }
+    }
+    // 调整渲染风格，按tab键切换
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+        if (glfwGetTime() - TAB_last_time > 0.25) {
+            render_style = (render_style + 1) % render_style_number;
+        }
+        TAB_last_time = glfwGetTime();
     }
 }
 
