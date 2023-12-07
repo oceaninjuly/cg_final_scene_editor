@@ -254,7 +254,7 @@ int main(){
     /*Create_gray();
     return 0;*/
     //初始化地面模型
-    Create_ground_model("./ground/t1.png");
+    Create_ground_model("./ground/t1.png", 0.1f);
     GLFWwindow* window;
     //初始化
     {
@@ -301,7 +301,7 @@ int main(){
     axismodel = new Axismodel();
     //生成模型和对应着色器
     lightshadermdl = new Lightmdl();
-    groundshadermdl = new Groundmdl("texture/grass.jpg");
+    groundshadermdl = new Groundmdl("texture/dry_dirt.jpg");
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
@@ -311,7 +311,7 @@ int main(){
     std::vector<Object*> Objectlist3;*/
     
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
-    groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.1f));
+    //groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.1f));
     
     //生成物体
     /*auto ground = decode("./ground/1.jpg");
@@ -372,8 +372,8 @@ int main(){
         fpscounter++;
         if (fpsct >= 1) {
             fpsct = 0;
-            /*system("cls");
-            std::cout << "fps: " << fpscounter << '\n';*/
+            system("cls");
+            std::cout << "fps: " << fpscounter << '\n';
             fpscounter = 0;
         }
         //方块位置更新

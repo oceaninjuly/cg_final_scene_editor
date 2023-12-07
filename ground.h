@@ -35,7 +35,7 @@ std::vector<std::vector<uchar> > decode(const std::string path)   //pathÎªÍ¼Æ¬Â·
     return array;
 }
 
-std::vector<std::vector<glm::vec3> > decode2(const std::string path)   //pathÎªÍ¼Æ¬Â·¾¶
+std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale = 1.0f)   //pathÎªÍ¼Æ¬Â·¾¶
 {
     cv::Mat nimg = cv::imread(path.c_str());                // ½«Í¼Æ¬´«ÈëMatÈİÆ÷ÖĞ
     //       ÏÔÊ¾Ô­Í¼Æ¬
@@ -56,7 +56,7 @@ std::vector<std::vector<glm::vec3> > decode2(const std::string path)   //pathÎªÍ
         uchar* inData = img.ptr<uchar>(i);            //ptrÎªÖ¸ÏòÍ¼Æ¬µÄĞĞÖ¸Õë£¬²ÎÊıiÎªĞĞÊı
         for (int j = 0; j < w; j++)
         {
-            array[i][j] = glm::vec3(i-cen_h,(double)inData[j]*60/255,j-cen_w);
+            array[i][j] = glm::vec3((i - cen_h)*scale, (double)inData[j]*scale * 60 / 255, (j - cen_w)*scale);
         }
     }
     return array;
@@ -96,25 +96,24 @@ void f(float* p, glm::vec3 pos,glm::vec3 nor,float tx,float ty) {
     p[6] = tx; p[7] = ty;
 }
 
-void Create_ground_model(const std::string path) {
-    std::vector<std::vector<glm::vec3> > arr = decode2(path);
+void Create_ground_model(const std::string path,float scale=1.0f) {
+    std::vector<std::vector<glm::vec3> > arr = decode2(path,scale);
     int step = 8;
     ground_vertex_len = (arr.size() - 1) * (arr[0].size() - 1) * 6;
     float* res = new float[ground_vertex_len * step];
     float* ptr = res;
-    float tex_scale = 0.2;
     for (int i = 0; i < arr.size()-1; i++) {
         for (int j = 0; j < arr[0].size()-1; j++) {
             // i,j;i+1,j;i,j+1;i+1,j+1;
             glm::vec3 v1 = arr[i + 1][j + 1] - arr[i][j];
             glm::vec3 nor1 = glm::normalize(glm::cross(v1, arr[i + 1][j] - arr[i][j]));
             glm::vec3 nor2 = glm::normalize(glm::cross(arr[i][j+1] - arr[i][j],v1));
-            f(ptr, arr[i][j], nor1, 0, 0);
-            f(ptr + step, arr[i+1][j], nor1, 1*tex_scale, 0);
-            f(ptr + 2*step, arr[i + 1][j+1], nor1, 1 * tex_scale, 1 * tex_scale);
-            f(ptr + 3*step, arr[i][j], nor2, 0, 0);
-            f(ptr + 4*step, arr[i][j+1], nor2, 0,1 * tex_scale);
-            f(ptr + 5*step, arr[i + 1][j + 1], nor2, 1 * tex_scale, 1 * tex_scale);
+            f(ptr, arr[i][j], nor1, arr[i][j].x, arr[i][j].z);
+            f(ptr + step, arr[i+1][j], nor1, arr[i+1][j].x, arr[i+1][j].z);
+            f(ptr + 2*step, arr[i + 1][j+1], nor1, arr[i + 1][j+1].x, arr[i+ 1][j+1].z);
+            f(ptr + 3*step, arr[i][j], nor2, arr[i][j].x, arr[i][j].z);
+            f(ptr + 4*step, arr[i][j+1], nor2, arr[i][j + 1].x, arr[i][j + 1].z);
+            f(ptr + 5*step, arr[i + 1][j + 1], nor2, arr[i + 1][j + 1].x, arr[i + 1][j + 1].z);
             ptr += 6 * step;
         }
     }
