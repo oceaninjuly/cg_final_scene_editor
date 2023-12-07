@@ -380,8 +380,8 @@ int main(){
         fpscounter++;
         if (fpsct >= 1) {
             fpsct = 0;
-            system("cls");
-            std::cout << "fps: " << fpscounter << '\n';
+            /*system("cls");
+            std::cout << "fps: " << fpscounter << '\n';*/
             fpscounter = 0;
         }
         //方块位置更新

@@ -83,8 +83,8 @@ float rand(vec2 co)
 
 void change_style( )
 {
-    if(render_style == 0) return;
-    else if(render_style == 1)
+    if(render_style == 0u) return;
+    else if(render_style == 1u)
     {
         //1.黑白风格
         // 将彩色转为灰度，可以使用标准的灰度公式：gray = 0.2126 * r + 0.7152 * g + 0.0722 * b
@@ -92,7 +92,7 @@ void change_style( )
         // 将灰度值分配给输出颜色的所有通道，得到黑白效果
         FragColor = vec4(vec3(gray), 1.0);
     }
-    else if(render_style == 2)
+    else if(render_style == 2u)
     {
         //2.像素风格
         // 将彩色转为离散颜色，通过乘color_num取整得到从0到color_num这么多的类型，例如取5
@@ -105,7 +105,7 @@ void change_style( )
         float jitter = rand(TexCoords + 0.5) * 0.05; // 调整扰动强度
         FragColor.rgb += vec3(jitter);
     }
-    else if(render_style == 3)
+    else if(render_style == 3u)
     {
         //3.电视花屏
         // 这个是在2的后半段基础上做的，其实就是把扰动强度提的很高
@@ -113,7 +113,7 @@ void change_style( )
         float jitter = rand(TexCoords + time) * 0.5; // 调整扰动强度
         FragColor.rgb += vec3(jitter);
     }
-    else if(render_style == 4)
+    else if(render_style == 4u)
     {
         //4.下雨
         // 模拟雨滴效果
