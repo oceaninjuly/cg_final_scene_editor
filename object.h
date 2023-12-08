@@ -16,6 +16,7 @@
 #include"obj.h"
 #include"main.h"
 #include"pointlit.h"
+#include"_mesh.h"
 typedef unsigned long long ull;
 
 struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
@@ -116,3 +117,35 @@ struct ModelObj1 : public BaseModelObj {
     
 };
 
+
+struct ModelObj6 : public BaseModelObj {
+    _Mesh model;
+
+
+    ModelObj6() :
+        BaseModelObj("./sdrs/fbx.vs", "./sdrs/fbx.fs"),
+        model("model/box.fbx")
+        {
+        VAO = -1;
+        category = 6;
+    }
+    void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {
+        shader.use();
+        shader.setInt("material.diffuse", 0);
+        shader.setInt("material.specular", 1);
+        shader.setFloat("material.shininess", 32.0f);
+        // camera
+        shader.setMat4("projection", projection);
+        shader.setMat4("view", view);
+        //render all object
+        model.Render();
+        ull tmp1, tmp2;
+        for (auto ele : objlist) {
+            shader.setUint("object_ptr_l", (GLuint)ele);
+            shader.setUint("object_ptr_h", (GLuint)((ull)ele >> 32));
+            shader.setMat4("model", ele->getmodel());
+        }
+    }
+
+
+};

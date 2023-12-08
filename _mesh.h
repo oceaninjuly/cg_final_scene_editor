@@ -12,7 +12,7 @@
 #include <assimp/scene.h>       // Output data structure
 #include <assimp/postprocess.h> // Post processing flags
 
-#include <IMG/stb_image.cpp>
+#include <IMG/stb_image.h>
 
 
 
@@ -22,6 +22,8 @@
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_GenSmoothNormals |  aiProcess_JoinIdenticalVertices )
 #define SAFE_DELETE(p) if (p) { delete p; p = NULL; }
 #define NOT_IMPLEMENTED printf("Not implemented case in %s:%d\n", __FILE__, __LINE__); exit(0);
+
+/*
 
 struct Vector2f
 {
@@ -122,6 +124,7 @@ struct Vector3f
     }
     */
 
+/*
     Vector3f(float f)
     {
         x = y = z = f;
@@ -202,7 +205,7 @@ struct Vector3f
     }
 };
 
-
+*/
 
 class _Texture
 {
@@ -244,24 +247,24 @@ private:
 
 struct _Vertex
 {
-    Vector3f m_pos;
-    Vector2f m_tex;
-    Vector3f m_normal;
+    glm::vec3 m_pos;
+    glm::vec2 m_tex;
+    glm::vec3 m_normal;
 
     _Vertex() {}
 
-    _Vertex(const Vector3f& pos, const Vector2f& tex, const Vector3f& normal)
+    _Vertex(const glm::vec3& pos, const glm::vec2& tex, const glm::vec3& normal)
     {
         m_pos = pos;
         m_tex = tex;
         m_normal = normal;
     }
 
-    _Vertex(const Vector3f& pos, const Vector2f& tex)
+    _Vertex(const glm::vec3& pos, const glm::vec2& tex)
     {
         m_pos = pos;
         m_tex = tex;
-        m_normal = Vector3f(0.0f, 0.0f, 0.0f);
+        m_normal = glm::vec3(0.0f, 0.0f, 0.0f);
     }
 };
 
@@ -269,7 +272,7 @@ class _Mesh
 {
 public:
     _Mesh();
-
+    _Mesh(const std::string& Filename);
     ~_Mesh();
 
     bool LoadMesh(const std::string& Filename);
@@ -342,6 +345,9 @@ _Mesh::_Mesh()
 {
 }
 
+_Mesh::_Mesh(const std::string& Filename) {
+    LoadMesh(Filename);
+}
 
 _Mesh::~_Mesh()
 {
@@ -405,9 +411,9 @@ void _Mesh::InitMesh(unsigned int Index, const aiMesh* paiMesh)
         const aiVector3D* pNormal = &(paiMesh->mNormals[i]);
         const aiVector3D* pTexCoord = paiMesh->HasTextureCoords(0) ? &(paiMesh->mTextureCoords[0][i]) : &Zero3D;
 
-        _Vertex v(Vector3f(pPos->x, pPos->y, pPos->z),
-            Vector2f(pTexCoord->x, pTexCoord->y),
-            Vector3f(pNormal->x, pNormal->y, pNormal->z));
+        _Vertex v(glm::vec3(pPos->x, pPos->y, pPos->z),
+            glm::vec2(pTexCoord->x, pTexCoord->y),
+            glm::vec3(pNormal->x, pNormal->y, pNormal->z));
 
         Vertices.push_back(v);
     }
@@ -468,7 +474,7 @@ bool _Mesh::InitMaterials(const aiScene* pScene, const std::string& Filename)
 
         // Load a white texture in case the model does not include its own texture
         if (!m_Textures[i]) {
-            m_Textures[i] = new _Texture(GL_TEXTURE_2D, "texture/grass.jpg");
+            m_Textures[i] = new _Texture(GL_TEXTURE_2D, "model/white.png");
 
             Ret = m_Textures[i]->Load();
         }
