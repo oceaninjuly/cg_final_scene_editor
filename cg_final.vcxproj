@@ -162,6 +162,7 @@
     <ClInclude Include="object.h" />
     <ClInclude Include="pointlit.h" />
     <ClInclude Include="ground.h" />
+    <ClInclude Include="Rain_generator.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
   <ItemGroup>
