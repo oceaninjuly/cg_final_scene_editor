@@ -13,6 +13,7 @@
 #include"pointlit.h"
 #include"ground.h"
 #include"Axis_generator.h"
+#include"_mesh.h"
 #include"Rain_generator.h"
 //shader_model
 std::vector<BaseModelObj*> shadermodel_list;
@@ -26,6 +27,8 @@ Shader deffered_shader;
 Axismodel* axismodel;
 //Rain
 RainModel* rainmodel;
+//new Mesh
+_Mesh* m = new _Mesh();
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -196,6 +199,8 @@ void rend(){
     glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_DEPTH_TEST);
+
+    
     //点光源模型
     lightshadermdl->render(lightPos,projection,view,camera.Position);
     //坐标指示器绘制
@@ -207,6 +212,8 @@ void rend(){
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, _textureSky);
 
+
+
     _shader_sky.use();
     _shader_sky.setUint("render_style", render_style);
     float currentTime = static_cast<float>(glfwGetTime());
@@ -216,6 +223,8 @@ void rend(){
     glBindVertexArray(VAO_sky);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS);
+
+    
 }
 
 void Deffer_setting() {
@@ -357,6 +366,8 @@ int main(){
     Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
     Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
+    
+    m->LoadMesh("model/tree.fbx");
     
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
