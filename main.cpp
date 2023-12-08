@@ -46,8 +46,6 @@ GLuint quadVAO = 0;
 GLuint quadVBO;
 GLuint cubeVAO = 0;
 GLuint cubeVBO = 0;
-Object* target_obj=nullptr;
-Object* last_obj = nullptr;
 
 //point_light
 std::vector<Pointlight*> point_lights;

@@ -20,7 +20,7 @@ typedef unsigned long long ull;
 
 struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
     ModelObj3():BaseModelObj("sdrs/3.mul_lit.vs","sdrs/3.mul_lit.fs"){
-        VAO = create_modelmat1();
+        VAO = create_cube();
         //VAO = create_texmodel(vertix_cube2);
 
         category = 3;
