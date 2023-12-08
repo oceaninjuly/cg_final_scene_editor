@@ -13,6 +13,7 @@
 #include"pointlit.h"
 #include"ground.h"
 #include"Axis_generator.h"
+#include"Rain_generator.h"
 //shader_model
 std::vector<BaseModelObj*> shadermodel_list;
 //point_light
@@ -23,6 +24,8 @@ unsigned int textureColorbuffer, posbuffer, normalbuffer,specolorbuffer,objidbuf
 Shader deffered_shader;
 //Axis
 Axismodel* axismodel;
+//Rain
+RainModel* rainmodel;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -197,6 +200,8 @@ void rend(){
     lightshadermdl->render(lightPos,projection,view,camera.Position);
     //坐标指示器绘制
     if(ground_grid) axismodel->Draw(projection, view);
+    //下雨状态绘制
+    if (render_style == 4) rainmodel->Draw(projection, view);
     //渲染天空盒
     glDepthFunc(GL_LEQUAL);
     glActiveTexture(GL_TEXTURE0);
@@ -299,14 +304,16 @@ int main(){
     }
     //初始化framebuffer
     framebufinit();
-    Shader deffered_shader_("./sdrs/s2.vs", "./sdrs/sshader/s2_phong.fs");
+    Shader deffered_shader_("./sdrs/sshader/s2.vs", "./sdrs/sshader/s2_phong.fs");
     deffered_shader = deffered_shader_;
     //生成天空盒(顶点对象，纹理)
     VAO_sky = creatSkyBoxVAO();
     _textureSky = createSkyBoxTex();
-    _shader_sky.initialize("sdrs/skybox.vs","sdrs/sshader/skybox.fs");
+    _shader_sky.initialize("sdrs/sshader/skybox.vs","sdrs/sshader/skybox.fs");
     //初始化Axis
     axismodel = new Axismodel();
+    //初始化RainModel
+    rainmodel = new RainModel();
     //生成模型和对应着色器
     lightshadermdl = new Lightmdl();
     groundshadermdl = new Groundmdl("texture/dry_dirt.jpg");
@@ -422,6 +429,7 @@ int main(){
     delete lightshadermdl;
     delete groundshadermdl;
     delete axismodel;
+    delete rainmodel;
     glfwTerminate();
     return 0;
 }
@@ -629,7 +637,7 @@ void processInput(GLFWwindow *window)
     }
     // 调整渲染风格，按tab键切换
     if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
-        if (glfwGetTime() - TAB_last_time > 0.25) {
+        if (glfwGetTime() - TAB_last_time > 0.2) {
             render_style = (render_style + 1) % render_style_number;
         }
         TAB_last_time = glfwGetTime();
