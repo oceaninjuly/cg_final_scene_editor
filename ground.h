@@ -39,7 +39,7 @@ std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale 
 {
     cv::Mat nimg = cv::imread(path.c_str());                // 将图片传入Mat容器中
     //       显示原图片
-    std::cout << nimg.channels()<<" "<< nimg.cols<<" "<< nimg.rows << '\n';
+    //std::cout << nimg.channels()<<" "<< nimg.cols<<" "<< nimg.rows << '\n';
     cv::Mat img;
     cv::cvtColor(nimg,img, cv::COLOR_RGB2GRAY);
     /*cv::namedWindow("old", cv::WINDOW_NORMAL);
