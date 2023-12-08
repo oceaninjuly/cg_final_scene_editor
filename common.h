@@ -1,6 +1,10 @@
 #pragma once
 #include<Shader/shader.h>
 #include <camera/camera.h>
+
+#include"obj.h"
+typedef unsigned long long ull;
+
 // settings
 const unsigned int SCR_WIDTH = 1120;
 const unsigned int SCR_HEIGHT = 630;
@@ -19,9 +23,12 @@ int camera_mode = 1;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
 // lighting
+BaseModelObj* lightCube_model = nullptr;
 glm::vec3 lightPos(0.0f, 2.0f, -1.0f);
 Shader _shader_sky;
+
 //ground
 float* ground=nullptr;
 long ground_vertex_len=0;
@@ -33,7 +40,7 @@ float torch_open = 1;
 bool isModelSelected = false;
 
 // 模型列表
-vector<Object*> Models;
+vector<Object*> Model_List;
 
 // 地面模型
 Object* groundobj;
@@ -42,3 +49,6 @@ int ground_grid = 1;
 
 // 缩放因子
 float ModelscaleFactor = 1.0f;
+
+Object* target_obj = nullptr;
+Object* last_obj = nullptr;
