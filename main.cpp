@@ -519,7 +519,7 @@ void processInput(GLFWwindow *window)
                         last_obj->setPos(pos.x, pos.y + 0.5*ModelscaleFactor , pos.z);
                     else if(last_obj->Mod->category == 1)
                         last_obj->setPos(pos.x, pos.y, pos.z);
-                    
+                    target_obj = nullptr;
                     isModelSelected = false;
                 }
             }
