@@ -313,7 +313,7 @@ int main(){
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
-    shadermodel_list.push_back(new ModelObj6());
+    shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
     //Object
     /*std::vector<Object*> Objectlist;
     std::vector<Object*> Objectlist2;
@@ -381,6 +381,7 @@ int main(){
         lastFrame = currentFrame;
         fpsct += deltaTime;
         fpscounter++;
+
         if (fpsct >= 1) {
             fpsct = 0;
             /*system("cls");
@@ -518,9 +519,9 @@ void processInput(GLFWwindow *window)
                 if ((GLuint)target_obj != (GLuint)groundobj)
                     isModelSelected = true;
                 if ((GLuint)target_obj == (GLuint)groundobj && (GLuint)last_obj != (GLuint)groundobj && isModelSelected==true) { // 如果现在选择的是地面，而上一次选择的模型不是地面，则移动模型位置
-                    if(last_obj->Mod->category == 3 || last_obj->Mod->category == 4)
+                    if(last_obj->Mod->category == 1 || last_obj->Mod->category == 2)
                         last_obj->setPos(pos.x, pos.y + 0.5*ModelscaleFactor , pos.z);
-                    else if(last_obj->Mod->category == 1)
+                    else if(last_obj->Mod->category >=3 )
                         last_obj->setPos(pos.x, pos.y, pos.z);
                     
                     isModelSelected = false;
