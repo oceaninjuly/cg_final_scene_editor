@@ -16,14 +16,16 @@
 #include"obj.h"
 #include"common.h"
 #include"pointlit.h"
+#include"_mesh.h"
 typedef unsigned long long ull;
+int entity = 0;
 
 struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
     ModelObj3():BaseModelObj("sdrs/3.mul_lit.vs","sdrs/3.mul_lit.fs"){
         VAO = create_cube();
         //VAO = create_texmodel(vertix_cube2);
 
-        category = 3;
+        category = ++entity;
     }
     void render(glm::vec3 &lightPos,glm::mat4 &projection,glm::mat4 &view,glm::vec3 &viewPos){
         shader.use();
@@ -58,9 +60,11 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
         shader.use();
         shader.setInt("material.diffuse", 0);
         shader.setInt("material.specular", 1);
-
-        category = 4;
+    
+        category = ++entity;
+        std::cout << "create a default object: a wooden box" << endl;
     }
+
     void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {
         shader.use();
         shader.setFloat("material.shininess", 32.0f);
@@ -92,10 +96,18 @@ struct ModelObj1 : public BaseModelObj {
     Model ourModel;
     ModelObj1():
         BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs"), 
-        ourModel("./model/nanosuit/nanosuit.obj"){
+        ourModel("model/phoenix_ugv.md2"){
         VAO = -1;
 
-        category = 1;
+        category = ++entity;
+    }
+
+    ModelObj1(const string path) :
+        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs"),
+        ourModel(path) {
+        VAO = -1;
+
+        category = ++entity;
     }
     void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {
         shader.use();
@@ -115,4 +127,3 @@ struct ModelObj1 : public BaseModelObj {
 
     
 };
-

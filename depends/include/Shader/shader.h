@@ -152,6 +152,10 @@ public:
     {
         glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
     }
+
+    void setSampler2d(const std::string& name, float x, float y, float z, float w) {
+        glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
+    }
     // ------------------------------------------------------------------------
     void setMat2(const std::string& name, const glm::mat2& mat) const
     {

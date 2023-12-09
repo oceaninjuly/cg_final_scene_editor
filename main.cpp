@@ -26,6 +26,7 @@ unsigned int textureColorbuffer, posbuffer, normalbuffer,specolorbuffer,objidbuf
 Shader deffered_shader;
 //Axis
 Axismodel* axismodel;
+_Mesh* m = new _Mesh();
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -251,6 +252,7 @@ void rend(Light& main_light, Render& main_renderer, Shader& shadowShader){
     glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_DEPTH_TEST);
+
     
     //点光源模型
     lightCube_model->render(lightPos, projection, view, camera.Position);
@@ -263,12 +265,16 @@ void rend(Light& main_light, Render& main_renderer, Shader& shadowShader){
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, _textureSky);
 
+
+
     _shader_sky.use();
     _shader_sky.setMat4("_viewMatrix", camera.GetSkyviewMatrix());    //设置观察矩阵；
     _shader_sky.setMat4("_projMatrix", projection);    //设置投影矩阵；
     glBindVertexArray(VAO_sky);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS);
+
+    
 }
 
 
@@ -350,10 +356,46 @@ int main(){
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
+
+    shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
+
     
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
     //groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.1f));
     
+
+    //生成物体
+    /*auto ground = decode("./ground/1.jpg");
+    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < 100; j++) {
+            for(int k=0;k< ground[i][j]%15;k++)
+                Objectlist2.push_back(new Object(glm::vec3(i, k, j), shadermodel_list[2]));
+        }
+    }*/
+    /*std::vector<Object*>& ae = shadermodel_list[2]->objlist;
+    for (int i = 1; i < ae.size(); i++) {
+        if (ae[i - 1] >= ae[i]) {
+            std::cout << i << '\n';
+        }
+    }*/
+    //删除指定点，测试一下功能
+    /*int i = 0;
+    while(i<Objectlist2.size()) {
+        auto pos = Objectlist2[i]->getPos();
+        if (pos.x > 2 && pos.x < 17 && pos.z > 2 && pos.z < 17) {
+            delete Objectlist2[i];
+            Objectlist2.erase(Objectlist2.begin() + i);
+        }
+        else {
+            i++;
+        }
+    }*/
+    Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
+    Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
+    Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
+    Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
+    Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
+
     
     //生成物体
     Model_List.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
@@ -381,6 +423,7 @@ int main(){
         lastFrame = currentFrame;
         fpsct += deltaTime;
         fpscounter++;
+
         if (fpsct >= 1) {
             fpsct = 0;
             system("cls");
@@ -515,9 +558,9 @@ void processInput(GLFWwindow *window)
                 if ((GLuint)target_obj != (GLuint)groundobj)
                     isModelSelected = true;
                 if ((GLuint)target_obj == (GLuint)groundobj && (GLuint)last_obj != (GLuint)groundobj && isModelSelected==true) { // 如果现在选择的是地面，而上一次选择的模型不是地面，则移动模型位置
-                    if(last_obj->Mod->category == 3 || last_obj->Mod->category == 4)
+                    if(last_obj->Mod->category == 1 || last_obj->Mod->category == 2)
                         last_obj->setPos(pos.x, pos.y + 0.5*ModelscaleFactor , pos.z);
-                    else if(last_obj->Mod->category == 1)
+                    else if(last_obj->Mod->category >=3 )
                         last_obj->setPos(pos.x, pos.y, pos.z);
                     
                     isModelSelected = false;
