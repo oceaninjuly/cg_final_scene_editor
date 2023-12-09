@@ -270,9 +270,7 @@ void rend(Light& main_light){
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS);
 
-    
 }
-
 
 int main(){
     /*Create_gray();

@@ -22,7 +22,7 @@ int entity = 0;
 
 struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
     ModelObj3():BaseModelObj(s_path+"3.mul_lit.vs",s_path + "3.mul_lit.fs"){
-        VAO = create_modelmat1();
+        VAO = create_cube();
         //VAO = create_texmodel(vertix_cube2);
 
         category = 3;
