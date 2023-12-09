@@ -19,7 +19,7 @@
 
 #define INVALID_OGL_VALUE 0xffffffff
 //#define ASSIMP_LOAD_FLAGS aiProcess_Triangulate | aiProcess_FlipUVs
-#define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_GenSmoothNormals |  aiProcess_JoinIdenticalVertices )
+#define ASSIMP_LOAD_FLAGS aiProcess_Triangulate | aiProcess_GenSmoothNormals |  aiProcess_JoinIdenticalVertices
 #define SAFE_DELETE(p) if (p) { delete p; p = NULL; }
 #define NOT_IMPLEMENTED printf("Not implemented case in %s:%d\n", __FILE__, __LINE__); exit(0);
 
@@ -374,6 +374,36 @@ bool _Mesh::LoadMesh(const std::string& Filename)
     const aiScene* pScene = Importer.ReadFile(Filename.c_str(), ASSIMP_LOAD_FLAGS);
 
     if (pScene) {
+        // Iterate through all materials
+        for (unsigned int i = 0; i < pScene->mNumMaterials; ++i) {
+            const aiMaterial* material = pScene->mMaterials[i];
+
+            // Print material information
+            std::cout << "Material " << i << ":\n";
+
+            aiColor3D diffuseColor(0.f, 0.f, 0.f);
+            material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+            std::cout << "Diffuse Color: (" << diffuseColor.r << ", " << diffuseColor.g << ", " << diffuseColor.b << ")\n";
+
+            // Iterate through all textures of the material
+            for (unsigned int j = 0; j < aiTextureType_UNKNOWN; ++j) {
+                aiTextureType textureType = static_cast<aiTextureType>(j);
+                unsigned int textureCount = material->GetTextureCount(textureType);
+
+                // Print texture information
+                for (unsigned int k = 0; k < textureCount; ++k) {
+                    aiString texturePath;
+                    if (material->GetTexture(textureType, k, &texturePath) == AI_SUCCESS) {
+                        std::cout << "Texture Type: " << textureType << ", Path: " << texturePath.C_Str() << "\n";
+                    }
+                }
+            }
+
+            std::cout << "\n";
+        }
+    }
+
+    if (pScene) {
         Ret = InitFromScene(pScene, Filename);
     }
     else {
@@ -415,6 +445,7 @@ void _Mesh::InitMesh(unsigned int Index, const aiMesh* paiMesh)
             glm::vec2(pTexCoord->x, pTexCoord->y),
             glm::vec3(pNormal->x, pNormal->y, pNormal->z));
 
+        std::cout << &v << ',' << &v.m_pos<<','<<&v.m_tex;
         Vertices.push_back(v);
     }
 
@@ -485,17 +516,21 @@ bool _Mesh::InitMaterials(const aiScene* pScene, const std::string& Filename)
 
 void _Mesh::Render()
 {
+    
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
 
+    
+
     for (unsigned int i = 0; i < m_Entries.size(); i++) {
         glBindBuffer(GL_ARRAY_BUFFER, m_Entries[i].VB);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(_Vertex), 0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(_Vertex), (const GLvoid*)12);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(_Vertex), (const GLvoid*)20);
-
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Entries[i].IB);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(_Vertex), 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(_Vertex), (void*)6);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(_Vertex), (void*)4);
+
+        
 
         const unsigned int MaterialIndex = m_Entries[i].MaterialIndex;
 
@@ -504,6 +539,7 @@ void _Mesh::Render()
         }
 
         glDrawElements(GL_TRIANGLES, m_Entries[i].NumIndices, GL_UNSIGNED_INT, 0);
+        
     }
 
     glDisableVertexAttribArray(0);

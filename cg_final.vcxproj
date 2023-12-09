@@ -165,7 +165,6 @@
     <ClInclude Include="ground.h" />
     <ClInclude Include="Rain_generator.h" />
     <ClInclude Include="vertex.h" />
-    <ClInclude Include="_mesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

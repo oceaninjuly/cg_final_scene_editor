@@ -44,12 +44,6 @@
     <ClInclude Include="Axis_generator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Rain_generator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="_mesh.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

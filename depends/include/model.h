@@ -53,6 +53,37 @@ private:
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
         // check for errors
+
+        if (scene) {
+            // Iterate through all materials
+            for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
+                const aiMaterial* material = scene->mMaterials[i];
+
+                // Print material information
+                std::cout << "Material " << i << ":\n";
+
+                aiColor3D diffuseColor(0.f, 0.f, 0.f);
+                material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+                std::cout << "Diffuse Color: (" << diffuseColor.r << ", " << diffuseColor.g << ", " << diffuseColor.b << ")\n";
+
+                // Iterate through all textures of the material
+                for (unsigned int j = 0; j < aiTextureType_UNKNOWN; ++j) {
+                    aiTextureType textureType = static_cast<aiTextureType>(j);
+                    unsigned int textureCount = material->GetTextureCount(textureType);
+
+                    // Print texture information
+                    for (unsigned int k = 0; k < textureCount; ++k) {
+                        aiString texturePath;
+                        if (material->GetTexture(textureType, k, &texturePath) == AI_SUCCESS) {
+                            std::cout << "Texture Type: " << textureType << ", Path: " << texturePath.C_Str() << "\n";
+                        }
+                    }
+                }
+
+                std::cout << "\n";
+            }
+        }
+
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
             cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
@@ -173,6 +204,7 @@ private:
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
     {
         vector<Texture> textures;
+
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
         {
             aiString str;
@@ -196,8 +228,22 @@ private:
                 texture.path = str.C_Str();
                 textures.push_back(texture);
                 textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+                if(texture.id>=0)
+                printf("Loaded texture '%s'\n", texture.path.c_str());
             }
         }
+        
+        if (textures.size() == 0) {
+            Texture texture;
+            texture.id = TextureFromFile("grass.jpg", "texture");
+            texture.type = typeName;
+            texture.path = "texture/grass.jpg";
+            textures.push_back(texture);
+            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+            if (texture.id >= 0)
+            printf("Loaded texture '%s'\n", "texture/grass.jpg");
+        }
+        
         return textures;
     }
 };
@@ -238,6 +284,7 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
     {
         std::cout << "Texture failed to load at path: " << path << std::endl;
         stbi_image_free(data);
+        textureID = -100;
     }
 
     return textureID;
