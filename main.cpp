@@ -344,7 +344,7 @@ int main(){
 
 
     // 地面
-    groundshadermdl = new Ground_Model(m_path + "texture/dry_dirt.jpg");
+    groundshadermdl = new Ground_Model(m_path + "texture/grass.jpg");
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
