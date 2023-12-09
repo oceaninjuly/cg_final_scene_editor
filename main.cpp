@@ -600,7 +600,6 @@ void processInput(GLFWwindow *window)
                 target_obj = temp_obj;
                 isRotate = true;
             }
-
             glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
             //std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
             picking_last_time = glfwGetTime();
