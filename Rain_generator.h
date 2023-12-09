@@ -12,7 +12,7 @@ struct RainModel {
     Shader shader;
     GLuint VAO;
     std::vector<float> vertices;
-    RainModel() :shader("./sdrs/rain/rain.vs", "./sdrs/rain/rain.fs", "./sdrs/rain/rain.gs"), VAO(0) {
+    RainModel() :shader(s_path + "rain/rain.vs", s_path + "rain/rain.fs", s_path + "rain/rain.gs"), VAO(0) {
         // 设置顶点数据
         srand(static_cast<unsigned>(time(nullptr)));
 

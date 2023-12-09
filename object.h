@@ -21,7 +21,7 @@ typedef unsigned long long ull;
 int entity = 0;
 
 struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
-    ModelObj3():BaseModelObj("sdrs/3.mul_lit.vs","sdrs/3.mul_lit.fs"){
+    ModelObj3():BaseModelObj(s_path+"3.mul_lit.vs",s_path + "3.mul_lit.fs"){
         VAO = create_modelmat1();
         //VAO = create_texmodel(vertix_cube2);
 
@@ -53,10 +53,10 @@ struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
 
 struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
     unsigned int diffuseMap, specularMap;
-    ModelObj4() :BaseModelObj("sdrs/mul_lit_tex.vs", "sdrs/mul_lit_tex.fs") {
+    ModelObj4() :BaseModelObj(s_path + "mul_lit_tex.vs", s_path + "mul_lit_tex.fs") {
         VAO = create_texmodel(vertix_cube2,sizeof(vertix_cube2));
-        diffuseMap = gentexture("./texture/container2.png");
-        specularMap = gentexture("./texture/container2_specular.png");
+        diffuseMap = gentexture(m_path + "texture/container2.png");
+        specularMap = gentexture(m_path + "texture/container2_specular.png");
         shader.use();
         shader.setInt("material.diffuse", 0);
         shader.setInt("material.specular", 1);
@@ -95,7 +95,7 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
 struct ModelObj1 : public BaseModelObj {
     Model ourModel;
     ModelObj1():
-        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs"), 
+        BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
         ourModel("model/phoenix_ugv.md2"){
         VAO = -1;
 
@@ -103,7 +103,7 @@ struct ModelObj1 : public BaseModelObj {
     }
 
     ModelObj1(const string path) :
-        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs"),
+        BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
         ourModel(path) {
         VAO = -1;
 

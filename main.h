@@ -1,6 +1,12 @@
 #pragma once
 #include<Shader/shader.h>
 #include <camera/camera.h>
+#include<iostream>
+//path
+// 着色器路径
+std::string s_path = "./sdrs/";
+//资源路径
+std::string m_path = "./";
 // settings
 const unsigned int SCR_WIDTH = 1120;
 const unsigned int SCR_HEIGHT = 630;

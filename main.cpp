@@ -277,7 +277,7 @@ int main(){
     /*Create_gray();
     return 0;*/
     //初始化地面模型
-    Create_ground_model("./ground/t1.png", 0.1f);
+    Create_ground_model(m_path + "ground/t1.png", 0.1f);
     GLFWwindow* window;
     //初始化
     {
@@ -313,23 +313,23 @@ int main(){
     }
     //初始化framebuffer
     framebufinit();
-    Shader deffered_shader_("./sdrs/sshader/s2.vs", "./sdrs/sshader/s2_phong.fs");
+    Shader deffered_shader_(s_path + "sshader/s2.vs", s_path + "sshader/s2_phong.fs");
     deffered_shader = deffered_shader_;
     //生成天空盒(顶点对象，纹理)
     VAO_sky = creatSkyBoxVAO();
     _textureSky = createSkyBoxTex();
-    _shader_sky.initialize("sdrs/sshader/skybox.vs","sdrs/sshader/skybox.fs");
+    _shader_sky.initialize(s_path + "sshader/skybox.vs", s_path + "sshader/skybox.fs");
     //初始化Axis
     axismodel = new Axismodel();
     //初始化RainModel
     rainmodel = new RainModel();
     //生成模型和对应着色器
     lightshadermdl = new Lightmdl();
-    groundshadermdl = new Groundmdl("texture/dry_dirt.jpg");
+    groundshadermdl = new Groundmdl(m_path + "texture/dry_dirt.jpg");
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
-    shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
+    //shadermodel_list.push_back(new ModelObj1(m_path + "model/tree.fbx"));
     //Object
     /*std::vector<Object*> Objectlist;
     std::vector<Object*> Objectlist2;
@@ -366,9 +366,9 @@ int main(){
     }*/
     Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
-    Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
+    //Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
     Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
-    Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
+    //Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
     
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));

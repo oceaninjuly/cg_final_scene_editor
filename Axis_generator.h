@@ -15,7 +15,7 @@ struct Axismodel{
     0.0f,0.0f
     };
     GLuint VAO;
-    Axismodel():shader("./sdrs/Axis/a.vs", "./sdrs/Axis/a.fs", "./sdrs/Axis/a.gs"),VAO(0){
+    Axismodel():shader(s_path + "Axis/a.vs", s_path + "Axis/a.fs", s_path + "Axis/a.gs"),VAO(0){
         GLuint _VBO;
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &_VBO);
