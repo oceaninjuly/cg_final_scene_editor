@@ -16,7 +16,7 @@
 #include"obj.h"
 #include"main.h"
 #include"pointlit.h"
-#include"_mesh.h"
+
 typedef unsigned long long ull;
 int entity = 0;
 
@@ -25,7 +25,7 @@ struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
         VAO = create_modelmat1();
         //VAO = create_texmodel(vertix_cube2);
 
-        category = ++entity;
+        category = 3;
     }
     void render(glm::vec3 &lightPos,glm::mat4 &projection,glm::mat4 &view,glm::vec3 &viewPos){
         shader.use();
@@ -61,7 +61,7 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
         shader.setInt("material.diffuse", 0);
         shader.setInt("material.specular", 1);
     
-        category = ++entity;
+        category = 4;
         std::cout << "create a default object: a wooden box" << endl;
     }
 
@@ -96,18 +96,24 @@ struct ModelObj1 : public BaseModelObj {
     Model ourModel;
     ModelObj1():
         BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
-        ourModel("model/phoenix_ugv.md2"){
+        ourModel("model/phoenix_ugv.md2")
+        //ourModel("model/box.fbx"){
         VAO = -1;
-
-        category = ++entity;
+        category = 1;
     }
 
     ModelObj1(const string path) :
         BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
         ourModel(path) {
         VAO = -1;
-
-        category = ++entity;
+        if (ourModel.success_flag == 0) {
+            ourModel.loadModel("model/phoenix_ugv.md2");
+            modelPath = "model/phoenix_ugv.md2";
+        }
+        else {
+            modelPath = path;
+        }
+        category = 1;
     }
     void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {
         shader.use();
@@ -122,6 +128,7 @@ struct ModelObj1 : public BaseModelObj {
             shader.setUint("object_ptr_h", (GLuint)((ull)ele >> 32));
             shader.setMat4("model", ele->getmodel());
             ourModel.Draw(shader);
+            //std::cout << "Render completed:" << category << '\t';
         }
     }
 

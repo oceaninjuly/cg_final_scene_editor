@@ -31,11 +31,12 @@ public:
     vector<Mesh>    meshes;
     string directory;
     bool gammaCorrection;
+    bool success_flag;
 
     // constructor, expects a filepath to a 3D model.
     Model(string const& path, bool gamma = false) : gammaCorrection(gamma)
     {
-        loadModel(path);
+        success_flag=loadModel(path);
     }
 
     // draws the model, and thus all its meshes
@@ -45,9 +46,9 @@ public:
             meshes[i].Draw(shader);
     }
 
-private:
+
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-    void loadModel(string const& path)
+    bool loadModel(string const& path)
     {
         // read file via ASSIMP
         Assimp::Importer importer;
@@ -87,15 +88,17 @@ private:
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
             cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
-            return;
+            return 0;
         }
         // retrieve the directory path of the filepath
         directory = path.substr(0, path.find_last_of('/'));
 
         // process ASSIMP's root node recursively
         processNode(scene->mRootNode, scene);
+        return 1;
     }
 
+private:
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene)
     {
