@@ -31,7 +31,7 @@ struct Pointlight:public Object{
 };
 
 struct LightCube:public BaseModelObj{
-    LightCube():BaseModelObj("sdrs/light_cube.vs","sdrs/light_cube.fs"){
+    LightCube():BaseModelObj(s_path+"light_cube.vs", s_path + "light_cube.fs"){
         VAO = create_light_cube();
     }
     void render(glm::vec3 &lightPos,glm::mat4 &projection,glm::mat4 &view,glm::vec3 &viewPos){

@@ -9,16 +9,19 @@
 #include<IMG/ffimage.cpp>
 #include <iostream>
 #include<algorithm>
-#include"main.h"
+#include"common.h"
 #include"pointlit.h"
 #include"ground.h"
+
+#include"light.h"
 #include"Axis_generator.h"
-#include"_mesh.h"
+#include<Windows.h>
+#include<filesystem>
+
 #include"Rain_generator.h"
 //shader_model
 std::vector<BaseModelObj*> shadermodel_list;
-//point_light
-std::vector<Pointlight*> point_lights;
+
 //deffered_rendering
 unsigned int framebuffer;
 unsigned int textureColorbuffer, posbuffer, normalbuffer,specolorbuffer,objidbuffer;
@@ -27,18 +30,22 @@ Shader deffered_shader;
 Axismodel* axismodel;
 //Rain
 RainModel* rainmodel;
-//new Mesh
-_Mesh* m = new _Mesh();
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+
 uint creatSkyBoxVAO();
 uint createSkyBoxTex(std::string,std::string,std::string);
-void rend();
-void Deffer_setting();
+
+void rend(Light& main_light);
 void RenderQuad();
+
+void addlights(Light& light);
+
 Object* get_Target_object(int winX, int winY);
 glm::vec3 get_Target_world(int winX, int winY);
 
@@ -46,12 +53,47 @@ GLuint quadVAO = 0;
 GLuint quadVBO;
 GLuint cubeVAO = 0;
 GLuint cubeVBO = 0;
-Object* target_obj=nullptr;
-Object* last_obj = nullptr;
 
 // 全局变量，渲染风格标记和总数
 uint render_style = 0;
 uint render_style_number = 5;
+//point_light
+std::vector<Pointlight*> point_lights;
+
+void load_thread() {
+    while (1) {
+        string path;
+        std::cout<<"ENTWR THE PATH OF THE MODEL, EXAMPLE: model/tree.fbx"<<endl;
+        cin >> path;
+       
+        bool existed = 0;
+        int cata;
+        for (BaseModelObj*  ele : shadermodel_list) {    //遍历现有的渲染器
+            if (ele->modelPath == path) {
+                existed = 1;
+                cata = ele->category;
+            }
+        }
+        
+        if (existed) {       //存在则加一个实体
+            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[cata-1]));
+            Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
+        } 
+        else {        //不存在则创建渲染器
+            shadermodel_list.push_back(new ModelObj1(path));
+            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[shadermodel_list.size()-1]));
+            Models[Models.size()-1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
+
+        }
+    }
+}
+// 光照
+glm::vec3 pointLightPositions[] = {
+    glm::vec3(0.7f,  -0.9f,  2.0f),
+    glm::vec3(2.3f, -0.9f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -6.0f),
+    glm::vec3(0.0f,  -0.9f, -3.0f)
+};
 
 void framebufinit() {
     glGenFramebuffers(1, &framebuffer);
@@ -126,7 +168,7 @@ uint creatSkyBoxVAO(){
     return _VAO;
 }
 
-uint createSkyBoxTex(std::string type="1",std::string suffix=".png",std::string prefix="texture/skybox/")
+uint createSkyBoxTex(std::string type="1",std::string suffix=".png",std::string prefix=m_path+"texture/skybox/")
 {
     uint _tid = 0;
     glGenTextures(1, &_tid);
@@ -157,12 +199,13 @@ uint createSkyBoxTex(std::string type="1",std::string suffix=".png",std::string 
     return _tid;
 }
 
-void rend(){
+void rend(Light& main_light){
     // glEnable(GL_DEPTH_TEST);
     //更新观察者信息
     static float winZ;
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
     glm::mat4 view = camera.GetViewMatrix();
+    
     //第一阶段渲染(每个像素的漫反射颜色，法向量，位置)
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glEnable(GL_DEPTH_TEST);
@@ -172,6 +215,7 @@ void rend(){
         // 调用shader-model 内部实现好的的render函数，传递必要参数
         shadermodel_list[i]->render(lightPos,projection,view,camera.Position);
     }
+    
     groundshadermdl->render(lightPos, projection, view, camera.Position);
     
     //第二阶段渲染(光照)
@@ -190,8 +234,9 @@ void rend(){
     glBindTexture(GL_TEXTURE_2D, specolorbuffer);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, objidbuffer);
-    Deffer_setting();
+    main_light.set_light(deffered_shader);
     RenderQuad();
+    
     //第三阶段渲染：不属于延迟渲染管线的对象
     glActiveTexture(GL_TEXTURE0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
@@ -202,7 +247,8 @@ void rend(){
 
     
     //点光源模型
-    lightshadermdl->render(lightPos,projection,view,camera.Position);
+    lightCube_model->render(lightPos, projection, view, camera.Position);
+    
     //坐标指示器绘制
     if(ground_grid) axismodel->Draw(projection, view);
     //下雨状态绘制
@@ -224,60 +270,13 @@ void rend(){
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS);
 
-    
-}
-
-void Deffer_setting() {
-    float currentTime = static_cast<float>(glfwGetTime());
-    deffered_shader.setUint("render_style", (GLuint)render_style);
-    deffered_shader.setFloat("time", currentTime);
-    deffered_shader.setInt("gPosition", 0);
-    deffered_shader.setInt("gNormal", 1);
-    deffered_shader.setInt("gAlbedoSpec", 2);
-    deffered_shader.setInt("Specolor", 3);
-    deffered_shader.setInt("objid", 4);
-    deffered_shader.setUint("target_obj_l", (GLuint)target_obj);
-    deffered_shader.setUint("target_obj_h", (GLuint)((ull)target_obj >> 32));
-    deffered_shader.setFloat("material.shininess", 32.0f);
-    // directional light
-    deffered_shader.setVec3("dirLight.direction", glm::normalize(glm::vec3(-1.0f, -0.3f, -0.3f)));
-    deffered_shader.setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
-    deffered_shader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-    deffered_shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-    // point light
-    std::vector<Object*>& lit = lightshadermdl->objlist;
-    deffered_shader.setInt("num_lights", lit.size());
-    for (int i = 0; i < lit.size(); i++) {
-        Pointlight* iter = (Pointlight*)lit[i];
-        std::string tmp = "pointLights[" + std::to_string(i) + "]";
-        deffered_shader.setVec3(tmp + ".position", iter->getPos());
-        deffered_shader.setVec3(tmp + ".ambient", iter->ambient);
-        deffered_shader.setVec3(tmp + ".specular", iter->specular);
-        deffered_shader.setFloat(tmp + ".constant", iter->gamma.x);
-        deffered_shader.setFloat(tmp + ".linear", iter->gamma.y);
-        deffered_shader.setFloat(tmp + ".quadratic", iter->gamma.z);
-    }
-    // spotLight
-    deffered_shader.setFloat("spotLight.open", torch_open);
-    deffered_shader.setVec3("spotLight.position", camera.Position);
-    deffered_shader.setVec3("spotLight.direction", camera.Front);
-    deffered_shader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-    deffered_shader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-    deffered_shader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-    deffered_shader.setFloat("spotLight.constant", 1.0f);
-    deffered_shader.setFloat("spotLight.linear", 0.09f);
-    deffered_shader.setFloat("spotLight.quadratic", 0.032f);
-    deffered_shader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-    deffered_shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-
-    deffered_shader.setVec3("viewPos", camera.Position);
 }
 
 int main(){
     /*Create_gray();
     return 0;*/
     //初始化地面模型
-    Create_ground_model("./ground/t1.png", 0.1f);
+    Create_ground_model(m_path + "ground/t1.png", 0.1f);
     GLFWwindow* window;
     //初始化
     {
@@ -291,7 +290,7 @@ int main(){
         #endif
         // glfw window creation
         // --------------------
-        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Group_", NULL, NULL);
         if (window == NULL)
         {
             std::cout << "Failed to create GLFW window" << std::endl;
@@ -302,6 +301,7 @@ int main(){
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
         glfwSetCursorPosCallback(window, mouse_callback);
         glfwSetScrollCallback(window, scroll_callback);
+        
         // glad: load all OpenGL function pointers
         // ---------------------------------------
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -311,23 +311,21 @@ int main(){
         }
         glEnable(GL_DEPTH_TEST);
     }
+    
     //初始化framebuffer
     framebufinit();
-    Shader deffered_shader_("./sdrs/sshader/s2.vs", "./sdrs/sshader/s2_phong.fs");
+    Shader deffered_shader_(s_path + "sshader/s2.vs", s_path + "sshader/s2_phong.fs");
     deffered_shader = deffered_shader_;
+    
     //生成天空盒(顶点对象，纹理)
     VAO_sky = creatSkyBoxVAO();
     _textureSky = createSkyBoxTex();
-    _shader_sky.initialize("sdrs/sshader/skybox.vs","sdrs/sshader/skybox.fs");
+    _shader_sky.initialize(s_path + "sshader/skybox.vs", s_path + "sshader/skybox.fs");
     //初始化Axis
     axismodel = new Axismodel();
     //初始化RainModel
     rainmodel = new RainModel();
     //生成模型和对应着色器
-<<<<<<< HEAD
-    lightshadermdl = new Lightmdl();
-    groundshadermdl = new Groundmdl("texture/dry_dirt.jpg");
-=======
     DirLight parallel{
     glm::vec3(0.3f, -0.7f, 1.0f),
     glm::vec3(0.3f, 0.3f, 0.3f),
@@ -346,72 +344,36 @@ int main(){
 
 
     // 地面
-    groundshadermdl = new Ground_Model(m_path + "texture/dry_dirt.jpg");
->>>>>>> parent of 7025f17 (2222)
+    groundshadermdl = new Ground_Model(m_path + "texture/grass.jpg");
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
-    shadermodel_list.push_back(new ModelObj6());
-    //Object
-    /*std::vector<Object*> Objectlist;
-    std::vector<Object*> Objectlist2;
-    std::vector<Object*> Objectlist3;*/
-    
+    //shadermodel_list.push_back(new ModelObj1(m_path + "model/tree.fbx"));
+
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
-    //groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.1f));
     
-    //生成物体
-    /*auto ground = decode("./ground/1.jpg");
-    for (int i = 0; i < 100; i++) {
-        for (int j = 0; j < 100; j++) {
-            for(int k=0;k< ground[i][j]%15;k++)
-                Objectlist2.push_back(new Object(glm::vec3(i, k, j), shadermodel_list[2]));
-        }
-    }*/
-    /*std::vector<Object*>& ae = shadermodel_list[2]->objlist;
-    for (int i = 1; i < ae.size(); i++) {
-        if (ae[i - 1] >= ae[i]) {
-            std::cout << i << '\n';
-        }
-    }*/
-    //删除指定点，测试一下功能
-    /*int i = 0;
-    while(i<Objectlist2.size()) {
-        auto pos = Objectlist2[i]->getPos();
-        if (pos.x > 2 && pos.x < 17 && pos.z > 2 && pos.z < 17) {
-            delete Objectlist2[i];
-            Objectlist2.erase(Objectlist2.begin() + i);
-        }
-        else {
-            i++;
-        }
-    }*/
     Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
+    //Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
     Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
-    
-    m->LoadMesh("model/tree.fbx");
+    //Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
     
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
     }
 
 
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3( 0.7f,  -0.9f,  2.0f),
-        glm::vec3( 2.3f, -0.9f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -6.0f),
-        glm::vec3( 0.0f,  -0.9f, -3.0f)
-    };
-    for(int i=0;i<4;i++){
-        point_lights.push_back(new Pointlight(pointLightPositions[i]));
-    }
     //std::cout<<shadermodel_list[0]->objlist.size()<<std::endl;
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     camera.set_speed(6.0f);
     int fpscounter = 0;
     float fpsct = 0;
+
+    HANDLE h; //线程句柄
+    h = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)load_thread, NULL, 1, 0); //创建子线程
+    ResumeThread(h);
+
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -419,37 +381,21 @@ int main(){
         lastFrame = currentFrame;
         fpsct += deltaTime;
         fpscounter++;
+
         if (fpsct >= 1) {
             fpsct = 0;
             /*system("cls");
             std::cout << "fps: " << fpscounter << '\n';*/
             fpscounter = 0;
         }
-        //方块位置更新
-        // static float counter = 0;
-        // counter += deltaTime;
-        // if(counter >= 0.2){
-        //     counter = 0;
-
-        // }
-        /*for (int j = 0; j < Objectlist.size(); j++) {
-            auto pos = Objectlist[j]->getPos();
-            if (pos.x > 10) Objectlist[j]->setPos(-10, pos.y, pos.z);
-            else Objectlist[j]->shift(2 * deltaTime, 0, 0);
-        }*/
-
         processInput(window);
-        rend();//渲染
+        rend(main_light);//渲染
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     //释放内存
-    /*for (auto ele : Objectlist2) {
-        ele->Mod = nullptr;
-        delete ele;
-    }*/
     for (auto ele : Models) {
         ele->Mod = nullptr;
         delete ele;
@@ -460,12 +406,28 @@ int main(){
         delete ele;
     }
     delete groundobj;
-    delete lightshadermdl;
+    delete lightCube_model;
     delete groundshadermdl;
     delete axismodel;
     delete rainmodel;
+    CloseHandle(h);
     glfwTerminate();
     return 0;
+}
+
+void addlights(Light& light) {
+    for (int i = 0; i < 4; i++) {
+        _PointLight l{
+            glm::vec3(pointLightPositions[i]),
+            1.0f,
+            0.09f,
+            0.032f,
+            glm::vec3(0.05f, 0.05f, 0.05f),
+            glm::vec3(0.8f, 0.8f, 0.8f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+        };
+        light.AddPointLight(l);
+    }
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -537,8 +499,15 @@ void processInput(GLFWwindow *window)
             DOWN_last_time = glfwGetTime();
         }
     }
+    
+    //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS &&
+    //    isModelSelected == true && glfwGetTime() - picking_last_time > 0.25) {
+    //    isModelSelected = false;
+    //    //target_obj->modelmat = origin;
+    //}
+
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS &&
-            glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
+        glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         if (glfwGetTime() - picking_last_time > 0.25) {
             Object* temp_obj = nullptr;
             temp_obj = get_Target_object((int)lastX, (int)lastY);
@@ -549,18 +518,19 @@ void processInput(GLFWwindow *window)
             else
                 target_obj = temp_obj;
             glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
-            std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z); 
+            std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
             picking_last_time = glfwGetTime();
-            
+
             if ((GLuint)target_obj != 0) { // 如果选中了某个模型,如果选中的模型不是地面，进入编辑模式
-                if ((GLuint)target_obj != (GLuint)groundobj)
+                if ((GLuint)target_obj != (GLuint)groundobj) {
                     isModelSelected = true;
-                if ((GLuint)target_obj == (GLuint)groundobj && (GLuint)last_obj != (GLuint)groundobj && isModelSelected==true) { // 如果现在选择的是地面，而上一次选择的模型不是地面，则移动模型位置
-                    if(last_obj->Mod->category == 3 || last_obj->Mod->category == 4)
-                        last_obj->setPos(pos.x, pos.y + 0.5*ModelscaleFactor , pos.z);
-                    else if(last_obj->Mod->category == 1)
+                } 
+                else if ((GLuint)target_obj == (GLuint)groundobj && (GLuint)last_obj != (GLuint)groundobj && isModelSelected == true) { // 如果现在选择的是地面，而上一次选择的模型不是地面，则移动模型位置
+                    if (last_obj->Mod->category == 3 || last_obj->Mod->category == 4)
+                        last_obj->setPos(pos.x, pos.y + 0.5 * ModelscaleFactor, pos.z);
+                    else if (last_obj->Mod->category == 1)
                         last_obj->setPos(pos.x, pos.y, pos.z);
-                    
+                    target_obj = nullptr;
                     isModelSelected = false;
                 }
             }
@@ -572,12 +542,35 @@ void processInput(GLFWwindow *window)
             cout << "next mode: " << isModelSelected << endl;
         }
     }
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS &&
+        isRotate == true&& glfwGetTime() - picking_last_time > 0.25) {
+        isRotate = false;
+        //target_obj->modelmat = origin;
+    }
+
+    //发旋转信号
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS &&
+        glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
+        if (glfwGetTime() - picking_last_time > 0.25) {
+            Object* temp_obj = nullptr;
+            temp_obj = get_Target_object((int)lastX, (int)lastY);
+            if (temp_obj != target_obj) {
+                target_obj = temp_obj;
+                isRotate = true;
+            }
+            glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+            //std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
+            picking_last_time = glfwGetTime();
+
+            
+        }
+    }
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS &&
         glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS) {
         if (glfwGetTime() - picking_last_time > 0.25) {
             // 在这里执行删除模型的操作
             if (isModelSelected == true) {
-                cout << Models.size() << endl;
+                std::cout << Models.size() << endl;
                 for (int i = 0; i < Models.size(); i++) {
                     if (Models[i] == last_obj) {
                         for (int j = i; j + 1 < Models.size(); j++) {
@@ -591,7 +584,7 @@ void processInput(GLFWwindow *window)
                 isModelSelected = false;
                 last_obj = nullptr;
                 target_obj = nullptr;
-                cout << Models.size() << endl;
+                std::cout << Models.size() << endl;
             }
         }
     }
@@ -607,7 +600,7 @@ void processInput(GLFWwindow *window)
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0.5, 0);
                         Models.push_back(new Object(pos, shadermodel_list[0]));
-                        cout << "num: " << Models.size() << endl;
+                        std::cout << "num: " << Models.size() << endl;
                     }
                     last_time_0 = currentTime;
                 }
@@ -642,7 +635,8 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS){
         float scaleFactor = 1.0f; // 缩放因子
 
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+       
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS == GLFW_PRESS) {
             // 按下方向上键时，增大模型
             scaleFactor = 1.15f; // 或者你可以根据需要调整缩放因子
         }
@@ -650,13 +644,13 @@ void processInput(GLFWwindow *window)
             // 按下方向下键时，缩小模型
             scaleFactor = 0.85f; // 或者你可以根据需要调整缩放因子
         }
-
         
         // 在这里执行缩放模型的操作
         if (isModelSelected == true) {
             //cout << "scale: " << scaleFactor << endl;
             target_obj->scalemat = glm::scale(target_obj->scalemat, glm::vec3(scaleFactor));
             ModelscaleFactor = target_obj->scalemat[0][0];
+
         }
         
         UP_last_time = glfwGetTime();
@@ -734,7 +728,28 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
     lastX = xpos;
     lastY = ypos;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) return;
+
+    float distance = glm::sqrt(xoffset * xoffset + yoffset * yoffset);
+
+
+
+    if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj) {
+
+
+        float angle = glm::length(distance) * 0.005f;
+        glm::vec3 axis = glm::normalize(glm::vec3(yoffset, xoffset, 0.0f));
+        glm::quat rotationQuat = glm::angleAxis(angle, axis);
+
+        // 将四元数转为旋转矩阵
+        glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
+
+        //origin = target_obj->modelmat;
+        target_obj->modelmat = target_obj->modelmat* rotationMatrix;
+
+    }
+
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS||isRotate) return;
     else if (camera_mode == 1) {
         camera.ProcessMouseMovement(xoffset, yoffset);
     }
@@ -748,7 +763,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+        camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 //获取指定位置物体

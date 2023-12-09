@@ -149,7 +149,7 @@ void Create_ground_model_2(const std::string path) {
 struct Ground_Model :public BaseModelObj {
     unsigned int texMap;
     long groundlen;
-    Ground_Model(const std::string texpath) :BaseModelObj("sdrs/ground.vs", "sdrs/ground.fs") {
+    Ground_Model(const std::string texpath) :BaseModelObj(s_path+"ground.vs", s_path+"ground.fs") {
         groundlen = ground_vertex_len * 8;
         VAO = create_texmodel(ground, groundlen * sizeof(float));
         texMap = gentexture(texpath);

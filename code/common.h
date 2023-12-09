@@ -6,9 +6,9 @@
 typedef unsigned long long ull;
 //path
 // 着色器路径
-std::string s_path = "./sdrs/";
+std::string s_path = "./code/sdrs/";
 //资源路径
-std::string m_path = "./";
+std::string m_path = "./material/";
 // settings
 const unsigned int SCR_WIDTH = 1120;
 const unsigned int SCR_HEIGHT = 630;

@@ -96,7 +96,7 @@ struct ModelObj1 : public BaseModelObj {
     Model ourModel;
     ModelObj1():
         BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
-        ourModel("model/phoenix_ugv.md2")
+        ourModel(m_path+"model/phoenix_ugv.md2")
         //ourModel("model/box.fbx")
         {
         VAO = -1;
@@ -108,8 +108,8 @@ struct ModelObj1 : public BaseModelObj {
         ourModel(path) {
         VAO = -1;
         if (ourModel.success_flag == 0) {
-            ourModel.loadModel("model/phoenix_ugv.md2");
-            modelPath = "model/phoenix_ugv.md2";
+            ourModel.loadModel(m_path+"model/phoenix_ugv.md2");
+            modelPath = m_path+"model/phoenix_ugv.md2";
         }
         else {
             modelPath = path;
