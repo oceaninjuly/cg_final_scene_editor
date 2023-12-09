@@ -61,7 +61,9 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
         shader.setInt("material.specular", 1);
 
         category = 4;
+        std::cout << "create a default object: a wooden box" << endl;
     }
+
     void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {
         shader.use();
         shader.setFloat("material.shininess", 32.0f);
@@ -123,7 +125,7 @@ struct ModelObj6 : public BaseModelObj {
 
 
     ModelObj6() :
-        BaseModelObj("sdrs/mul_lit_tex.vs", "sdrs/mul_lit_tex.fs"),
+        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs"),
         model("model/tree.fbx")
         {
         VAO = -1;
