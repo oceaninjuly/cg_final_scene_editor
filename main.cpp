@@ -542,11 +542,11 @@ void processInput(GLFWwindow *window)
         }
     }
     
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS &&
-        isModelSelected == true && glfwGetTime() - picking_last_time > 0.25) {
-        isModelSelected = false;
-        //target_obj->modelmat = origin;
-    }
+    //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS &&
+    //    isModelSelected == true && glfwGetTime() - picking_last_time > 0.25) {
+    //    isModelSelected = false;
+    //    //target_obj->modelmat = origin;
+    //}
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS &&
         glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
@@ -584,7 +584,6 @@ void processInput(GLFWwindow *window)
             cout << "next mode: " << isModelSelected << endl;
         }
     }
-
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS &&
         isRotate == true&& glfwGetTime() - picking_last_time > 0.25) {
         isRotate = false;
@@ -769,11 +768,6 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     float distance = glm::sqrt(xoffset * xoffset + yoffset * yoffset);
 
 
-    float picking_last_time = glfwGetTime();
-
-    /*if (isModelSelected) {
-        
-    }*/
 
     if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj) {
 

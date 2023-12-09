@@ -25,7 +25,7 @@ struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
         VAO = create_modelmat1();
         //VAO = create_texmodel(vertix_cube2);
 
-        category = ++entity;
+        category = 3;
     }
     void render(glm::vec3 &lightPos,glm::mat4 &projection,glm::mat4 &view,glm::vec3 &viewPos){
         shader.use();
@@ -61,7 +61,7 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
         shader.setInt("material.diffuse", 0);
         shader.setInt("material.specular", 1);
     
-        category = ++entity;
+        category = 4;
         std::cout << "create a default object: a wooden box" << endl;
     }
 
@@ -98,7 +98,7 @@ struct ModelObj1 : public BaseModelObj {
         BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs", "model/box.fbx"),
         ourModel("model/box.fbx"){
         VAO = -1;
-        category = ++entity;
+        category = 1;
     }
 
     ModelObj1(const string path) :
@@ -112,7 +112,7 @@ struct ModelObj1 : public BaseModelObj {
         else {
             modelPath = path;
         }
-        category = ++entity;
+        category = 1;
     }
     void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {
         shader.use();
