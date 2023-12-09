@@ -6,7 +6,16 @@ struct BaseModelObj{
     Shader shader;
     std::vector<Object*> objlist;
     int category = 0; // 模型种类
-    BaseModelObj(const std::string Shapath1,const std::string Shapath2):shader(Shapath1,Shapath2){}
+    string modelPath;
+    BaseModelObj(const std::string Shapath1,const std::string Shapath2,
+        const std::string MPath):shader(Shapath1,Shapath2),modelPath(MPath){}
+
+    BaseModelObj(const std::string Shapath1, const std::string Shapath2) :shader(Shapath1, Shapath2){}
+
+    void setModelPath(const string path) {
+        modelPath = path;
+    }
+
     virtual void render(glm::vec3 &lightPos,glm::mat4 &projection,glm::mat4 &view,glm::vec3 &viewPos){
         std::cout<<"calling a virtual function \"BaseModeObj::render\".\n";
         while(1);

@@ -16,7 +16,7 @@
 #include"obj.h"
 #include"main.h"
 #include"pointlit.h"
-#include"_mesh.h"
+
 typedef unsigned long long ull;
 int entity = 0;
 
@@ -95,10 +95,9 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
 struct ModelObj1 : public BaseModelObj {
     Model ourModel;
     ModelObj1():
-        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs"), 
+        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs", "model/phoenix_ugv.md2"),
         ourModel("model/phoenix_ugv.md2"){
         VAO = -1;
-
         category = ++entity;
     }
 
@@ -106,7 +105,13 @@ struct ModelObj1 : public BaseModelObj {
         BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs"),
         ourModel(path) {
         VAO = -1;
-
+        if (ourModel.success_flag == 0) {
+            ourModel.loadModel("model/phoenix_ugv.md2");
+            modelPath = "model/phoenix_ugv.md2";
+        }
+        else {
+            modelPath = path;
+        }
         category = ++entity;
     }
     void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {

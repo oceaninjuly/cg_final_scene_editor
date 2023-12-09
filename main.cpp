@@ -13,7 +13,9 @@
 #include"pointlit.h"
 #include"ground.h"
 #include"Axis_generator.h"
-#include"_mesh.h"
+#include<Windows.h>
+#include<filesystem>
+
 //shader_model
 std::vector<BaseModelObj*> shadermodel_list;
 //point_light
@@ -24,7 +26,7 @@ unsigned int textureColorbuffer, posbuffer, normalbuffer,specolorbuffer,objidbuf
 Shader deffered_shader;
 //Axis
 Axismodel* axismodel;
-_Mesh* m = new _Mesh();
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -44,6 +46,32 @@ GLuint cubeVAO = 0;
 GLuint cubeVBO = 0;
 Object* target_obj=nullptr;
 Object* last_obj = nullptr;
+
+
+void load_thread() {
+    while (1) {
+        string path;
+        std::cout<<"输入模型路径，例如model/tree.fbx"<<endl;
+        cin >> path;
+       
+        bool existed = 0;
+        int cata;
+        for (BaseModelObj*  ele : shadermodel_list) {
+            if (ele->modelPath == path)existed = 1;
+            cata = ele->category;
+        }
+        
+        if (existed) {
+            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[cata-1]));
+        }
+        else {
+            shadermodel_list.push_back(new ModelObj1(path));
+            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[shadermodel_list.size()-1]));
+            Models[Models.size()-1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
+
+        }
+    }
+}
 
 
 void framebufinit() {
@@ -313,7 +341,7 @@ int main(){
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
-    shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
+    shadermodel_list.push_back(new ModelObj1("model/box.fbx"));
     //Object
     /*std::vector<Object*> Objectlist;
     std::vector<Object*> Objectlist2;
@@ -359,6 +387,8 @@ int main(){
     }
 
 
+
+
     glm::vec3 pointLightPositions[] = {
         glm::vec3( 0.7f,  -0.9f,  2.0f),
         glm::vec3( 2.3f, -0.9f, -4.0f),
@@ -374,6 +404,11 @@ int main(){
     camera.set_speed(6.0f);
     int fpscounter = 0;
     float fpsct = 0;
+
+    HANDLE h; //线程句柄
+    h = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)load_thread, NULL, 1, 0); //创建子线程
+    ResumeThread(h);
+
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -426,6 +461,7 @@ int main(){
     delete lightshadermdl;
     delete groundshadermdl;
     delete axismodel;
+    CloseHandle(h);
     glfwTerminate();
     return 0;
 }
@@ -532,15 +568,16 @@ void processInput(GLFWwindow *window)
             }
 
             last_obj = target_obj;
-            cout << "next mode: " << isModelSelected << endl;
+            std::cout << "next mode: " << isModelSelected << endl;
         }
     }
+
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS &&
         glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS) {
         if (glfwGetTime() - picking_last_time > 0.25) {
             // 在这里执行删除模型的操作
             if (isModelSelected == true) {
-                cout << Models.size() << endl;
+                std::cout << Models.size() << endl;
                 for (int i = 0; i < Models.size(); i++) {
                     if (Models[i] == last_obj) {
                         for (int j = i; j + 1 < Models.size(); j++) {
@@ -554,7 +591,7 @@ void processInput(GLFWwindow *window)
                 isModelSelected = false;
                 last_obj = nullptr;
                 target_obj = nullptr;
-                cout << Models.size() << endl;
+                std::cout << Models.size() << endl;
             }
         }
     }
@@ -570,7 +607,7 @@ void processInput(GLFWwindow *window)
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0.5, 0);
                         Models.push_back(new Object(pos, shadermodel_list[0]));
-                        cout << "num: " << Models.size() << endl;
+                        std::cout << "num: " << Models.size() << endl;
                     }
                     last_time_0 = currentTime;
                 }
