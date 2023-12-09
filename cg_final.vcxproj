@@ -157,8 +157,5 @@
     <ClInclude Include="shadow.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
