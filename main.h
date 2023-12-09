@@ -33,6 +33,7 @@ float torch_open = 1;
 bool isModelSelected = false;
 
 bool isRotate = false;
+//glm::mat4 origin;
 
 // 模型列表
 vector<Object*> Models;

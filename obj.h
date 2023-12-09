@@ -79,7 +79,9 @@ struct Object{
         return glm::vec3(modelmat[3][0],modelmat[3][1],modelmat[3][2]);
     }
     void setPos(double x,double y,double z){
-        modelmat = glm::translate(modelmat,glm::vec3(x-modelmat[3][0],y-modelmat[3][1],z-modelmat[3][2]));
+        glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+        modelmat = translationMatrix * glm::mat4(glm::mat3(modelmat));
+        //modelmat = glm::translate(modelmat,glm::vec3(x-modelmat[3][0],y-modelmat[3][1],z-modelmat[3][2]));
     }
 
     void rotate(double x, double y) {
