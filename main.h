@@ -32,6 +32,8 @@ float torch_open = 1;
 // select model
 bool isModelSelected = false;
 
+bool isRotate = false;
+
 // 模型列表
 vector<Object*> Models;
 

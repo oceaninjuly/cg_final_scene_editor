@@ -316,6 +316,7 @@ int main(){
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
         glfwSetCursorPosCallback(window, mouse_callback);
         glfwSetScrollCallback(window, scroll_callback);
+        
         // glad: load all OpenGL function pointers
         // ---------------------------------------
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -536,6 +537,7 @@ void processInput(GLFWwindow *window)
             DOWN_last_time = glfwGetTime();
         }
     }
+    
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS &&
             glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         if (glfwGetTime() - picking_last_time > 0.25) {
@@ -572,6 +574,29 @@ void processInput(GLFWwindow *window)
         }
     }
 
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS &&
+        isRotate == true&& glfwGetTime() - picking_last_time > 0.25) {
+        isRotate = false;
+    }
+
+    //发旋转信号
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS &&
+        glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
+        if (glfwGetTime() - picking_last_time > 0.25) {
+            Object* temp_obj = nullptr;
+            temp_obj = get_Target_object((int)lastX, (int)lastY);
+            if (temp_obj != target_obj) {
+                target_obj = temp_obj;
+                isRotate = true;
+            }
+
+            glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+            //std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
+            picking_last_time = glfwGetTime();
+
+            
+        }
+    }
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS &&
         glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS) {
         if (glfwGetTime() - picking_last_time > 0.25) {
@@ -727,7 +752,26 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
     lastX = xpos;
     lastY = ypos;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) return;
+
+    float distance = glm::sqrt(xoffset * xoffset + yoffset * yoffset);
+
+
+    float picking_last_time = glfwGetTime();
+
+    if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj) {
+        float angle = glm::length(distance) * 0.005f;
+        glm::vec3 axis = glm::normalize(glm::vec3(yoffset, xoffset, 0.0f));
+        glm::quat rotationQuat = glm::angleAxis(angle, axis);
+
+        // 将四元数转为旋转矩阵
+        glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
+
+        target_obj->modelmat = target_obj->modelmat* rotationMatrix;
+
+    }
+
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS||isRotate) return;
     else if (camera_mode == 1) {
         camera.ProcessMouseMovement(xoffset, yoffset);
     }
