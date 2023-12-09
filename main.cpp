@@ -51,7 +51,7 @@ Object* last_obj = nullptr;
 void load_thread() {
     while (1) {
         string path;
-        std::cout<<"输入模型路径，例如model/tree.fbx"<<endl;
+        std::cout<<"ENTWR THE PATH OF THE MODEL, EXAMPLE: model/tree.fbx"<<endl;
         cin >> path;
        
         bool existed = 0;
@@ -342,7 +342,7 @@ int main(){
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
-    shadermodel_list.push_back(new ModelObj1("model/box.fbx"));
+    shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
     //Object
     /*std::vector<Object*> Objectlist;
     std::vector<Object*> Objectlist2;
@@ -666,7 +666,8 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS){
         float scaleFactor = 1.0f; // 缩放因子
 
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+       
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS == GLFW_PRESS) {
             // 按下方向上键时，增大模型
             scaleFactor = 1.15f; // 或者你可以根据需要调整缩放因子
         }
@@ -674,13 +675,13 @@ void processInput(GLFWwindow *window)
             // 按下方向下键时，缩小模型
             scaleFactor = 0.85f; // 或者你可以根据需要调整缩放因子
         }
-
         
         // 在这里执行缩放模型的操作
         if (isModelSelected == true) {
             //cout << "scale: " << scaleFactor << endl;
             target_obj->scalemat = glm::scale(target_obj->scalemat, glm::vec3(scaleFactor));
             ModelscaleFactor = target_obj->scalemat[0][0];
+
         }
         
         UP_last_time = glfwGetTime();
@@ -802,7 +803,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+        camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 //获取指定位置物体

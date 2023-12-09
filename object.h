@@ -95,8 +95,8 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
 struct ModelObj1 : public BaseModelObj {
     Model ourModel;
     ModelObj1():
-        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs", "model/phoenix_ugv.md2"),
-        ourModel("model/phoenix_ugv.md2"){
+        BaseModelObj("./sdrs/model_loading.vs", "./sdrs/model_loading.fs", "model/box.fbx"),
+        ourModel("model/box.fbx"){
         VAO = -1;
         category = ++entity;
     }
