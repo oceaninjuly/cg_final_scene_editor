@@ -127,6 +127,7 @@ struct ModelObj1 : public BaseModelObj {
             shader.setUint("object_ptr_h", (GLuint)((ull)ele >> 32));
             shader.setMat4("model", ele->getmodel());
             ourModel.Draw(shader);
+            //std::cout << "Render completed:" << category << '\t';
         }
     }
 

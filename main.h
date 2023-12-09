@@ -33,7 +33,6 @@ float torch_open = 1;
 bool isModelSelected = false;
 double scroll = 0;
 bool isRotate = false;
-double latency=-1;
 //glm::mat4 origin;
 
 // 模型列表

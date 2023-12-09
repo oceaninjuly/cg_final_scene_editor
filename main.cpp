@@ -56,15 +56,18 @@ void load_thread() {
        
         bool existed = 0;
         int cata;
-        for (BaseModelObj*  ele : shadermodel_list) {
-            if (ele->modelPath == path)existed = 1;
-            cata = ele->category;
+        for (BaseModelObj*  ele : shadermodel_list) {    //遍历现有的渲染器
+            if (ele->modelPath == path) {
+                existed = 1;
+                cata = ele->category;
+            }
         }
         
-        if (existed) {
+        if (existed) {       //存在则加一个实体
             Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[cata-1]));
-        }
-        else {
+            Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
+        } 
+        else {        //不存在则创建渲染器
             shadermodel_list.push_back(new ModelObj1(path));
             Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[shadermodel_list.size()-1]));
             Models[Models.size()-1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
@@ -193,6 +196,7 @@ void rend(){
         // 调用shader-model 内部实现好的的render函数，传递必要参数
         shadermodel_list[i]->render(lightPos,projection,view,camera.Position);
     }
+    
     groundshadermdl->render(lightPos, projection, view, camera.Position);
     
     //第二阶段渲染(光照)
@@ -349,7 +353,6 @@ int main(){
     std::vector<Object*> Objectlist3;*/
     
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
-    groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.1f));
     
     //生成物体
     /*auto ground = decode("./ground/1.jpg");
