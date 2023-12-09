@@ -327,10 +327,10 @@ int main(){
     rainmodel = new RainModel();
     //生成模型和对应着色器
     DirLight parallel{
-    glm::vec3(0.3f, -0.7f, 1.0f),
-    glm::vec3(0.3f, 0.3f, 0.3f),
-    glm::vec3(0.3f, 0.3f, 0.3f),
-    glm::vec3(0.4f, 0.4f, 0.4f)
+    glm::normalize(glm::vec3(-1.0f, -0.3f, -0.3f)),
+    glm::vec3(0.2f, 0.2f, 0.2f),
+    glm::vec3(0.4f, 0.4f, 0.4f),
+    glm::vec3(0.5f, 0.5f, 0.5f)
     };
 
     lightCube_model = new LightCube();
