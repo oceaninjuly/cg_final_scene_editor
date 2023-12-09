@@ -346,7 +346,7 @@ int main(){
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
-    shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
+    //shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
     //Object
     /*std::vector<Object*> Objectlist;
     std::vector<Object*> Objectlist2;
@@ -383,9 +383,9 @@ int main(){
     }*/
     Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
-    Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
-    Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
-    Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
+    //Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
+    Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.01f));
+    //Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
     
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
@@ -553,6 +553,7 @@ void processInput(GLFWwindow *window)
         if (glfwGetTime() - picking_last_time > 0.25) {
             Object* temp_obj = nullptr;
             temp_obj = get_Target_object((int)lastX, (int)lastY);
+            glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
             if (temp_obj == target_obj) {
                 target_obj = nullptr;
                 isModelSelected = false;
@@ -565,7 +566,14 @@ void processInput(GLFWwindow *window)
             if ((GLuint)target_obj != 0) { // 如果选中了某个模型,如果选中的模型不是地面，进入编辑模式
                 if ((GLuint)target_obj != (GLuint)groundobj)
                     isModelSelected = true;
-                
+                    std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
+                }
+                else if ((GLuint)temp_obj == (GLuint)groundobj &&
+                    (GLuint)last_obj != (GLuint)groundobj && isModelSelected == true) {
+                    if (last_obj->Mod->category == 1 || last_obj->Mod->category == 2)
+                        last_obj->setPos(pos.x, pos.y + 0.5 * ModelscaleFactor, pos.z);
+                    else if (last_obj->Mod->category >= 3)
+                        last_obj->setPos(pos.x, pos.y, pos.z);      
             }
             else {
                 isModelSelected = false;
@@ -763,18 +771,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     float picking_last_time = glfwGetTime();
 
     if (isModelSelected) {
-        Object* temp_obj = get_Target_object((int)lastX, (int)lastY);
-        glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
-        std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
-        if ((GLuint)temp_obj == (GLuint)groundobj &&
-            (GLuint)last_obj != (GLuint)groundobj && isModelSelected == true) { 
-            if (last_obj->Mod->category == 1 || last_obj->Mod->category == 2)
-                last_obj->setPos(pos.x, pos.y + 0.5 * ModelscaleFactor, pos.z);
-            else if (last_obj->Mod->category >= 3)
-                last_obj->setPos(pos.x, pos.y, pos.z);
-
-            
-        }
+        
     }
 
     if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj) {
