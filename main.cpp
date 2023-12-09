@@ -329,7 +329,7 @@ int main(){
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
-    shadermodel_list.push_back(new ModelObj6());
+    //shadermodel_list.push_back(new ModelObj6());
     //Object
     /*std::vector<Object*> Objectlist;
     std::vector<Object*> Objectlist2;
@@ -366,9 +366,9 @@ int main(){
     }*/
     Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
-    Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
+    //Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
     Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
-    Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
+    //Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
     
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
