@@ -14,7 +14,7 @@
 #include<vector>
 #include"vertex.h"
 #include"obj.h"
-#include"main.h"
+#include"common.h"
 #include"pointlit.h"
 #include"_mesh.h"
 typedef unsigned long long ull;
@@ -22,7 +22,7 @@ int entity = 0;
 
 struct ModelObj3: public BaseModelObj{ // 无纹理的箱子
     ModelObj3():BaseModelObj("sdrs/3.mul_lit.vs","sdrs/3.mul_lit.fs"){
-        VAO = create_modelmat1();
+        VAO = create_cube();
         //VAO = create_texmodel(vertix_cube2);
 
         category = ++entity;

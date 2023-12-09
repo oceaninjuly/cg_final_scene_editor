@@ -72,8 +72,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+
     <IncludePath>.\depends\include;.\depends\build\include;.\depends\build\include\opencv2;$(IncludePath)</IncludePath>
     <LibraryPath>.\depends\libs;.\depends\build\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>.\depends\include;.\depends\build\include;.\depends\build\include\opencv2;$(IncludePath)</IncludePath>
@@ -147,11 +149,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Axis_generator.h" />
-    <ClInclude Include="main.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="obj.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="pointlit.h" />
     <ClInclude Include="ground.h" />
+    <ClInclude Include="Render.h" />
+    <ClInclude Include="shadow.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
