@@ -323,7 +323,7 @@ int main(){
         #endif
         // glfw window creation
         // --------------------
-        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Group_", NULL, NULL);
         if (window == NULL)
         {
             std::cout << "Failed to create GLFW window" << std::endl;
@@ -363,40 +363,9 @@ int main(){
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
     //shadermodel_list.push_back(new ModelObj1(m_path + "model/tree.fbx"));
-    //Object
-    /*std::vector<Object*> Objectlist;
-    std::vector<Object*> Objectlist2;
-    std::vector<Object*> Objectlist3;*/
-    
+
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
-    groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.1f));
     
-    //生成物体
-    /*auto ground = decode("./ground/1.jpg");
-    for (int i = 0; i < 100; i++) {
-        for (int j = 0; j < 100; j++) {
-            for(int k=0;k< ground[i][j]%15;k++)
-                Objectlist2.push_back(new Object(glm::vec3(i, k, j), shadermodel_list[2]));
-        }
-    }*/
-    /*std::vector<Object*>& ae = shadermodel_list[2]->objlist;
-    for (int i = 1; i < ae.size(); i++) {
-        if (ae[i - 1] >= ae[i]) {
-            std::cout << i << '\n';
-        }
-    }*/
-    //删除指定点，测试一下功能
-    /*int i = 0;
-    while(i<Objectlist2.size()) {
-        auto pos = Objectlist2[i]->getPos();
-        if (pos.x > 2 && pos.x < 17 && pos.z > 2 && pos.z < 17) {
-            delete Objectlist2[i];
-            Objectlist2.erase(Objectlist2.begin() + i);
-        }
-        else {
-            i++;
-        }
-    }*/
     Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
     //Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
@@ -406,9 +375,6 @@ int main(){
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
     }
-
-
-
 
     glm::vec3 pointLightPositions[] = {
         glm::vec3( 0.7f,  -0.9f,  2.0f),
@@ -444,19 +410,6 @@ int main(){
             std::cout << "fps: " << fpscounter << '\n';*/
             fpscounter = 0;
         }
-        //方块位置更新
-        // static float counter = 0;
-        // counter += deltaTime;
-        // if(counter >= 0.2){
-        //     counter = 0;
-
-        // }
-        /*for (int j = 0; j < Objectlist.size(); j++) {
-            auto pos = Objectlist[j]->getPos();
-            if (pos.x > 10) Objectlist[j]->setPos(-10, pos.y, pos.z);
-            else Objectlist[j]->shift(2 * deltaTime, 0, 0);
-        }*/
-
         processInput(window);
         rend();//渲染
 
@@ -465,10 +418,6 @@ int main(){
     }
 
     //释放内存
-    /*for (auto ele : Objectlist2) {
-        ele->Mod = nullptr;
-        delete ele;
-    }*/
     for (auto ele : Models) {
         ele->Mod = nullptr;
         delete ele;

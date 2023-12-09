@@ -97,7 +97,8 @@ struct ModelObj1 : public BaseModelObj {
     ModelObj1():
         BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
         ourModel("model/phoenix_ugv.md2")
-        //ourModel("model/box.fbx"){
+        //ourModel("model/box.fbx")
+        {
         VAO = -1;
         category = 1;
     }
