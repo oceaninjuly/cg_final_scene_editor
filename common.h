@@ -47,7 +47,7 @@ bool isRotate = false;
 //glm::mat4 origin;
 
 // 模型列表
-vector<Object*> Model_List;
+vector<Object*> Models;
 
 // 地面模型
 Object* groundobj;

@@ -346,7 +346,7 @@ int main(){
 
 
     // 地面
-    groundshadermdl = new Groundmdl(m_path + "texture/dry_dirt.jpg");
+    groundshadermdl = new Ground_Model(m_path + "texture/dry_dirt.jpg");
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
@@ -578,7 +578,7 @@ void processInput(GLFWwindow *window)
                         for (int j = i; j + 1 < Models.size(); j++) {
                             Models[j] = Models[j + 1];
                         }
-                        Model_List.pop_back();
+                        Models.pop_back();
                         break;
                     }
                 }
@@ -614,7 +614,7 @@ void processInput(GLFWwindow *window)
                     if (isModelSelected == false) {
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0.5, 0);
-                        Model_List.push_back(new Object(pos, shadermodel_list[1]));
+                        Models.push_back(new Object(pos, shadermodel_list[1]));
                     }
                     last_time_1 = currentTime;
                 }
@@ -626,7 +626,7 @@ void processInput(GLFWwindow *window)
                     if (isModelSelected == false) {
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0, 0);
-                        Model_List.push_back(new Object(pos, shadermodel_list[2]));
+                        Models.push_back(new Object(pos, shadermodel_list[2]));
                     }
                     last_time_2 = currentTime;
                 }
