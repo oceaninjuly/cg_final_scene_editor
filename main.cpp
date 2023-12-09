@@ -51,8 +51,11 @@ Object* last_obj = nullptr;
 void load_thread() {
     while (1) {
         string path;
+        glm::vec3 pos = glm::vec3(0);
         std::cout<<"ENTWR THE PATH OF THE MODEL, EXAMPLE: model/tree.fbx"<<endl;
         cin >> path;
+        std::cout << "Please enter the position : x y z" << endl;
+        std::cin >> pos.x >>pos.y>>pos.z;
        
         bool existed = 0;
         int cata;
@@ -64,12 +67,12 @@ void load_thread() {
         }
         
         if (existed) {       //存在则加一个实体
-            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[cata-1]));
+            Models.push_back(new Object(pos, shadermodel_list[cata-1]));
             Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
         } 
         else {        //不存在则创建渲染器
             shadermodel_list.push_back(new ModelObj1(path));
-            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[shadermodel_list.size()-1]));
+            Models.push_back(new Object(pos, shadermodel_list[shadermodel_list.size()-1]));
             Models[Models.size()-1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
 
         }
@@ -347,45 +350,29 @@ int main(){
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1());
     shadermodel_list.push_back(new ModelObj1("model/tree.fbx"));
-    //Object
-    /*std::vector<Object*> Objectlist;
-    std::vector<Object*> Objectlist2;
-    std::vector<Object*> Objectlist3;*/
+    shadermodel_list.push_back(new ModelObj1("model/tank_001.fbx"));
+    shadermodel_list.push_back(new ModelObj1("model/tent_001.fbx"));
+    shadermodel_list.push_back(new ModelObj1("model/radiostation_001.fbx"));
+    shadermodel_list.push_back(new ModelObj1("model/tower_001.fbx"));
+    shadermodel_list.push_back(new ModelObj1("model/phoenix_ugv.md2"));
+    shadermodel_list.push_back(new ModelObj1("model/ToyCar.fbx"));
+    
     
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
-    groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.5f));
+    groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.1f));
     
-    //生成物体
-    /*auto ground = decode("./ground/1.jpg");
-    for (int i = 0; i < 100; i++) {
-        for (int j = 0; j < 100; j++) {
-            for(int k=0;k< ground[i][j]%15;k++)
-                Objectlist2.push_back(new Object(glm::vec3(i, k, j), shadermodel_list[2]));
-        }
-    }*/
-    /*std::vector<Object*>& ae = shadermodel_list[2]->objlist;
-    for (int i = 1; i < ae.size(); i++) {
-        if (ae[i - 1] >= ae[i]) {
-            std::cout << i << '\n';
-        }
-    }*/
-    //删除指定点，测试一下功能
-    /*int i = 0;
-    while(i<Objectlist2.size()) {
-        auto pos = Objectlist2[i]->getPos();
-        if (pos.x > 2 && pos.x < 17 && pos.z > 2 && pos.z < 17) {
-            delete Objectlist2[i];
-            Objectlist2.erase(Objectlist2.begin() + i);
-        }
-        else {
-            i++;
-        }
-    }*/
     Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
     Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
-    Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
+    Models.push_back(new Object(glm::vec3(10, 1, 0), shadermodel_list[4]));
+    Models.push_back(new Object(glm::vec3(15, 1, 0), shadermodel_list[5]));
+    Models.push_back(new Object(glm::vec3(1, 20, 0), shadermodel_list[6]));
+    Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.05f));
     Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
+    Models[3]->scalemat = glm::scale(Models[3]->scalemat, glm::vec3(1.0f));
+    Models[4]->scalemat = glm::scale(Models[4]->scalemat, glm::vec3(1.0f));
+    Models[5]->scalemat = glm::scale(Models[5]->scalemat, glm::vec3(1.0f));
+    //Models[6]->scalemat = glm::scale(Models[6]->scalemat, glm::vec3(0.05f));
     
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
