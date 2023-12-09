@@ -14,7 +14,7 @@
 #include<vector>
 #include"vertex.h"
 #include"obj.h"
-#include"main.h"
+#include"common.h"
 #include"pointlit.h"
 
 typedef unsigned long long ull;

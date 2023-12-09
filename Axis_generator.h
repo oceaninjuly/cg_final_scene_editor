@@ -11,7 +11,7 @@
 struct Axismodel{
 	Shader shader;
     float points[2] = {
-    //0.8f, -0.8f  // сроб
+    //0.8f, -0.8f  // О©╫О©╫О©╫О©╫
     0.0f,0.0f
     };
     GLuint VAO;

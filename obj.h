@@ -74,6 +74,28 @@ struct Object{
         debug_num = num;
         Mod = nullptr;
     }
+    
+    void Draw(Shader& shader,
+        glm::vec3 viewPos,
+        glm::mat4& projectionMat,
+        glm::mat4& viewMat,
+        glm::vec3 lightPos = glm::vec3(0.0f, 2.0f, -1.0f),
+        const glm::vec4& clippling_plane = glm::vec4(0.0f, 1.0f, 0.0f, 999999.0f),
+        bool isHit = false)
+    {
+        shader.use();
+        if (isHit)
+            shader.setVec3("selected_color", glm::vec3(0.5f, 0.5f, 0.5f));
+        else
+            shader.setVec3("selected_color", glm::vec3(0.0f, 0.0f, 0.0f));
+        shader.setMat4("projection", projectionMat);
+        shader.setMat4("view", viewMat);
+        shader.setVec4("plane", clippling_plane);
+        shader.setVec3("viewPos", viewPos);
+        shader.setMat4("model", modelmat);
+        Mod->render(lightPos, projectionMat, viewMat, viewPos);
+
+    }
 
     glm::vec3 getPos() const{
         return glm::vec3(modelmat[3][0],modelmat[3][1],modelmat[3][2]);

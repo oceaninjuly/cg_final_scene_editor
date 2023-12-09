@@ -9,9 +9,11 @@
 #include<IMG/ffimage.cpp>
 #include <iostream>
 #include<algorithm>
-#include"main.h"
+#include"common.h"
 #include"pointlit.h"
 #include"ground.h"
+
+#include"light.h"
 #include"Axis_generator.h"
 #include<Windows.h>
 #include<filesystem>
@@ -19,8 +21,7 @@
 #include"Rain_generator.h"
 //shader_model
 std::vector<BaseModelObj*> shadermodel_list;
-//point_light
-std::vector<Pointlight*> point_lights;
+
 //deffered_rendering
 unsigned int framebuffer;
 unsigned int textureColorbuffer, posbuffer, normalbuffer,specolorbuffer,objidbuffer;
@@ -36,11 +37,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+
 uint creatSkyBoxVAO();
 uint createSkyBoxTex(std::string,std::string,std::string);
-void rend();
-void Deffer_setting();
+
+void rend(Light& main_light);
 void RenderQuad();
+
+void addlights(Light& light);
+
 Object* get_Target_object(int winX, int winY);
 glm::vec3 get_Target_world(int winX, int winY);
 
@@ -48,12 +53,12 @@ GLuint quadVAO = 0;
 GLuint quadVBO;
 GLuint cubeVAO = 0;
 GLuint cubeVBO = 0;
-Object* target_obj=nullptr;
-Object* last_obj = nullptr;
 
 // 全局变量，渲染风格标记和总数
 uint render_style = 0;
 uint render_style_number = 5;
+//point_light
+std::vector<Pointlight*> point_lights;
 
 void load_thread() {
     while (1) {
@@ -82,7 +87,13 @@ void load_thread() {
         }
     }
 }
-
+// 光照
+glm::vec3 pointLightPositions[] = {
+    glm::vec3(0.7f,  -0.9f,  2.0f),
+    glm::vec3(2.3f, -0.9f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -6.0f),
+    glm::vec3(0.0f,  -0.9f, -3.0f)
+};
 
 void framebufinit() {
     glGenFramebuffers(1, &framebuffer);
@@ -188,12 +199,13 @@ uint createSkyBoxTex(std::string type="1",std::string suffix=".png",std::string 
     return _tid;
 }
 
-void rend(){
+void rend(Light& main_light){
     // glEnable(GL_DEPTH_TEST);
     //更新观察者信息
     static float winZ;
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
     glm::mat4 view = camera.GetViewMatrix();
+    
     //第一阶段渲染(每个像素的漫反射颜色，法向量，位置)
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glEnable(GL_DEPTH_TEST);
@@ -222,8 +234,9 @@ void rend(){
     glBindTexture(GL_TEXTURE_2D, specolorbuffer);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, objidbuffer);
-    Deffer_setting();
+    main_light.set_light(deffered_shader);
     RenderQuad();
+    
     //第三阶段渲染：不属于延迟渲染管线的对象
     glActiveTexture(GL_TEXTURE0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
@@ -234,7 +247,8 @@ void rend(){
 
     
     //点光源模型
-    lightshadermdl->render(lightPos,projection,view,camera.Position);
+    lightCube_model->render(lightPos, projection, view, camera.Position);
+    
     //坐标指示器绘制
     if(ground_grid) axismodel->Draw(projection, view);
     //下雨状态绘制
@@ -259,51 +273,6 @@ void rend(){
     
 }
 
-void Deffer_setting() {
-    float currentTime = static_cast<float>(glfwGetTime());
-    deffered_shader.setUint("render_style", (GLuint)render_style);
-    deffered_shader.setFloat("time", currentTime);
-    deffered_shader.setInt("gPosition", 0);
-    deffered_shader.setInt("gNormal", 1);
-    deffered_shader.setInt("gAlbedoSpec", 2);
-    deffered_shader.setInt("Specolor", 3);
-    deffered_shader.setInt("objid", 4);
-    deffered_shader.setUint("target_obj_l", (GLuint)target_obj);
-    deffered_shader.setUint("target_obj_h", (GLuint)((ull)target_obj >> 32));
-    deffered_shader.setFloat("material.shininess", 32.0f);
-    // directional light
-    deffered_shader.setVec3("dirLight.direction", glm::normalize(glm::vec3(-1.0f, -0.3f, -0.3f)));
-    deffered_shader.setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
-    deffered_shader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-    deffered_shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-    // point light
-    std::vector<Object*>& lit = lightshadermdl->objlist;
-    deffered_shader.setInt("num_lights", lit.size());
-    for (int i = 0; i < lit.size(); i++) {
-        Pointlight* iter = (Pointlight*)lit[i];
-        std::string tmp = "pointLights[" + std::to_string(i) + "]";
-        deffered_shader.setVec3(tmp + ".position", iter->getPos());
-        deffered_shader.setVec3(tmp + ".ambient", iter->ambient);
-        deffered_shader.setVec3(tmp + ".specular", iter->specular);
-        deffered_shader.setFloat(tmp + ".constant", iter->gamma.x);
-        deffered_shader.setFloat(tmp + ".linear", iter->gamma.y);
-        deffered_shader.setFloat(tmp + ".quadratic", iter->gamma.z);
-    }
-    // spotLight
-    deffered_shader.setFloat("spotLight.open", torch_open);
-    deffered_shader.setVec3("spotLight.position", camera.Position);
-    deffered_shader.setVec3("spotLight.direction", camera.Front);
-    deffered_shader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-    deffered_shader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-    deffered_shader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-    deffered_shader.setFloat("spotLight.constant", 1.0f);
-    deffered_shader.setFloat("spotLight.linear", 0.09f);
-    deffered_shader.setFloat("spotLight.quadratic", 0.032f);
-    deffered_shader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-    deffered_shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-
-    deffered_shader.setVec3("viewPos", camera.Position);
-}
 
 int main(){
     /*Create_gray();
@@ -344,10 +313,12 @@ int main(){
         }
         glEnable(GL_DEPTH_TEST);
     }
+    
     //初始化framebuffer
     framebufinit();
     Shader deffered_shader_(s_path + "sshader/s2.vs", s_path + "sshader/s2_phong.fs");
     deffered_shader = deffered_shader_;
+    
     //生成天空盒(顶点对象，纹理)
     VAO_sky = creatSkyBoxVAO();
     _textureSky = createSkyBoxTex();
@@ -357,7 +328,24 @@ int main(){
     //初始化RainModel
     rainmodel = new RainModel();
     //生成模型和对应着色器
-    lightshadermdl = new Lightmdl();
+    DirLight parallel{
+    glm::vec3(0.3f, -0.7f, 1.0f),
+    glm::vec3(0.3f, 0.3f, 0.3f),
+    glm::vec3(0.3f, 0.3f, 0.3f),
+    glm::vec3(0.4f, 0.4f, 0.4f)
+    };
+
+    lightCube_model = new LightCube();
+    Light main_light(parallel);
+    addlights(main_light);
+
+
+    for (int i = 0; i < 4; i++) {
+        point_lights.push_back(new Pointlight(pointLightPositions[i]));
+    }
+
+
+    // 地面
     groundshadermdl = new Groundmdl(m_path + "texture/dry_dirt.jpg");
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
@@ -376,15 +364,7 @@ int main(){
         Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
     }
 
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3( 0.7f,  -0.9f,  2.0f),
-        glm::vec3( 2.3f, -0.9f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -6.0f),
-        glm::vec3( 0.0f,  -0.9f, -3.0f)
-    };
-    for(int i=0;i<4;i++){
-        point_lights.push_back(new Pointlight(pointLightPositions[i]));
-    }
+
     //std::cout<<shadermodel_list[0]->objlist.size()<<std::endl;
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -411,7 +391,7 @@ int main(){
             fpscounter = 0;
         }
         processInput(window);
-        rend();//渲染
+        rend(main_light);//渲染
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -428,13 +408,28 @@ int main(){
         delete ele;
     }
     delete groundobj;
-    delete lightshadermdl;
+    delete lightCube_model;
     delete groundshadermdl;
     delete axismodel;
     delete rainmodel;
     CloseHandle(h);
     glfwTerminate();
     return 0;
+}
+
+void addlights(Light& light) {
+    for (int i = 0; i < 4; i++) {
+        _PointLight l{
+            glm::vec3(pointLightPositions[i]),
+            1.0f,
+            0.09f,
+            0.032f,
+            glm::vec3(0.05f, 0.05f, 0.05f),
+            glm::vec3(0.8f, 0.8f, 0.8f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+        };
+        light.AddPointLight(l);
+    }
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -583,7 +578,7 @@ void processInput(GLFWwindow *window)
                         for (int j = i; j + 1 < Models.size(); j++) {
                             Models[j] = Models[j + 1];
                         }
-                        Models.pop_back();
+                        Model_List.pop_back();
                         break;
                     }
                 }
@@ -619,7 +614,7 @@ void processInput(GLFWwindow *window)
                     if (isModelSelected == false) {
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0.5, 0);
-                        Models.push_back(new Object(pos, shadermodel_list[1]));
+                        Model_List.push_back(new Object(pos, shadermodel_list[1]));
                     }
                     last_time_1 = currentTime;
                 }
@@ -631,7 +626,7 @@ void processInput(GLFWwindow *window)
                     if (isModelSelected == false) {
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0, 0);
-                        Models.push_back(new Object(pos, shadermodel_list[2]));
+                        Model_List.push_back(new Object(pos, shadermodel_list[2]));
                     }
                     last_time_2 = currentTime;
                 }

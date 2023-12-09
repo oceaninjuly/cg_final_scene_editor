@@ -2,6 +2,8 @@
 #include<Shader/shader.h>
 #include <camera/camera.h>
 #include<iostream>
+#include"obj.h"
+typedef unsigned long long ull;
 //path
 // 着色器路径
 std::string s_path = "./sdrs/";
@@ -25,9 +27,12 @@ int camera_mode = 1;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
 // lighting
+BaseModelObj* lightCube_model = nullptr;
 glm::vec3 lightPos(0.0f, 2.0f, -1.0f);
 Shader _shader_sky;
+
 //ground
 float* ground=nullptr;
 long ground_vertex_len=0;
@@ -42,7 +47,7 @@ bool isRotate = false;
 //glm::mat4 origin;
 
 // 模型列表
-vector<Object*> Models;
+vector<Object*> Model_List;
 
 // 地面模型
 Object* groundobj;
@@ -51,3 +56,6 @@ int ground_grid = 1;
 
 // 缩放因子
 float ModelscaleFactor = 1.0f;
+
+Object* target_obj = nullptr;
+Object* last_obj = nullptr;

@@ -8,25 +8,25 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include"main.h"
+#include"common.h"
 #include"obj.h"
 #include"vertex.h"
 typedef unsigned char uchar;
 BaseModelObj* groundshadermdl=nullptr;
-std::vector<std::vector<uchar> > decode(const std::string path)   //pathÎªÍ¼Æ¬Â·¾¶
+std::vector<std::vector<uchar> > decode(const std::string path)   //pathÎªÍ¼Æ¬Â·ï¿½ï¿½
 {
-    cv::Mat img = cv::imread(path.c_str());                // ½«Í¼Æ¬´«ÈëMatÈÝÆ÷ÖÐ
-    //       ÏÔÊ¾Ô­Í¼Æ¬
+    cv::Mat img = cv::imread(path.c_str());                // ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½Matï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    //       ï¿½ï¿½Ê¾Ô­Í¼Æ¬
     //       namedWindow("old", WINDOW_NORMAL);
     //       imshow("old", img);
     //      waitKey(0);
-    int w = img.cols * img.channels();     //¿ÉÄÜÎª3Í¨µÀ£¬¿í¶ÈÒª³ËÍ¼Æ¬µÄÍ¨µÀÊý
+    int w = img.cols * img.channels();     //ï¿½ï¿½ï¿½ï¿½Îª3Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Í¼Æ¬ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½
     int h = img.rows;
 
-    std::vector<std::vector<uchar> > array(h, std::vector<uchar>(w));      //³õÊ¼»¯¶þÎ¬vector
+    std::vector<std::vector<uchar> > array(h, std::vector<uchar>(w));      //ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Î¬vector
     for (int i = 0; i < h; i++)
     {
-        uchar* inData = img.ptr<uchar>(i);            //ptrÎªÖ¸ÏòÍ¼Æ¬µÄÐÐÖ¸Õë£¬²ÎÊýiÎªÐÐÊý
+        uchar* inData = img.ptr<uchar>(i);            //ptrÎªÖ¸ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½iÎªï¿½ï¿½ï¿½ï¿½
         for (int j = 0; j < w; j++)
         {
             array[i][j] = inData[j];
@@ -35,10 +35,10 @@ std::vector<std::vector<uchar> > decode(const std::string path)   //pathÎªÍ¼Æ¬Â·
     return array;
 }
 
-std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale = 1.0f)   //pathÎªÍ¼Æ¬Â·¾¶
+std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale = 1.0f)   //pathÎªÍ¼Æ¬Â·ï¿½ï¿½
 {
-    cv::Mat nimg = cv::imread(path.c_str());                // ½«Í¼Æ¬´«ÈëMatÈÝÆ÷ÖÐ
-    //       ÏÔÊ¾Ô­Í¼Æ¬
+    cv::Mat nimg = cv::imread(path.c_str());                // å°†å›¾ç‰‡ä¼ å…¥Matå®¹å™¨ä¸­
+    //       æ˜¾ç¤ºåŽŸå›¾ç‰‡
     //std::cout << nimg.channels()<<" "<< nimg.cols<<" "<< nimg.rows << '\n';
     cv::Mat img;
     cv::cvtColor(nimg,img, cv::COLOR_RGB2GRAY);
@@ -46,14 +46,14 @@ std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale 
     cv::imshow("old", img);
     cv::waitKey(0);*/
     
-    int w = img.cols;     //¿ÉÄÜÎª3Í¨µÀ£¬¿í¶ÈÒª³ËÍ¼Æ¬µÄÍ¨µÀÊý
+    int w = img.cols;     //ï¿½ï¿½ï¿½ï¿½Îª3Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Í¼Æ¬ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½
     int h = img.rows;
     int cen_w = w / 2,cen_h = h/2;
 
-    std::vector<std::vector<glm::vec3> > array(h, std::vector<glm::vec3>(w));      //³õÊ¼»¯¶þÎ¬vector
+    std::vector<std::vector<glm::vec3> > array(h, std::vector<glm::vec3>(w));      //ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Î¬vector
     for (int i = 0; i < h; i++)
     {
-        uchar* inData = img.ptr<uchar>(i);            //ptrÎªÖ¸ÏòÍ¼Æ¬µÄÐÐÖ¸Õë£¬²ÎÊýiÎªÐÐÊý
+        uchar* inData = img.ptr<uchar>(i);            //ptrÎªÖ¸ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½iÎªï¿½ï¿½ï¿½ï¿½
         for (int j = 0; j < w; j++)
         {
             array[i][j] = glm::vec3((i - cen_h)*scale, (double)inData[j]*scale * 60 / 255, (j - cen_w)*scale);
@@ -66,7 +66,7 @@ void code(std::vector<std::vector<uchar> > array)
 {
     size_t h = array.size();
     size_t w = array[0].size();
-    //³õÊ¼»¯Í¼Æ¬µÄÏñËØ³¤¿í
+    //ï¿½ï¿½Ê¼ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½
     cv::Mat img(h, (size_t)w, CV_8U, cv::Scalar(0));
     for (size_t i = 0; i < h; i++)
     {
@@ -146,12 +146,12 @@ void Create_ground_model_2(const std::string path) {
 }
 
 
-struct Groundmdl:public BaseModelObj {
+struct Ground_Model :public BaseModelObj {
     unsigned int texMap;
     long groundlen;
-    Groundmdl(const std::string texpath):BaseModelObj("sdrs/ground.vs", "sdrs/ground.fs") {
+    Ground_Model(const std::string texpath) :BaseModelObj("sdrs/ground.vs", "sdrs/ground.fs") {
         groundlen = ground_vertex_len * 8;
-        VAO = create_texmodel(ground, groundlen*sizeof(float));
+        VAO = create_texmodel(ground, groundlen * sizeof(float));
         texMap = gentexture(texpath);
     }
     void render(glm::vec3& lightPos, glm::mat4& projection, glm::mat4& view, glm::vec3& viewPos) {
@@ -176,7 +176,7 @@ struct Groundmdl:public BaseModelObj {
             shader.setUint("object_ptr_l", (GLuint)ele);
             shader.setUint("object_ptr_h", (GLuint)((ull)ele >> 32));
             shader.setMat4("model", ele->getmodel());
-            glDrawArrays(GL_TRIANGLES,0,groundlen); //
+            glDrawArrays(GL_TRIANGLES, 0, groundlen); //
         }
     }
 };
