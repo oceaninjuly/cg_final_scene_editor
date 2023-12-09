@@ -119,12 +119,12 @@ struct ModelObj1 : public BaseModelObj {
 
 
 struct ModelObj6 : public BaseModelObj {
-    _Mesh model;
+    Model model;
 
 
     ModelObj6() :
-        BaseModelObj("./sdrs/fbx.vs", "./sdrs/fbx.fs"),
-        model("model/box.fbx")
+        BaseModelObj("sdrs/mul_lit_tex.vs", "sdrs/mul_lit_tex.fs"),
+        model("model/tree.fbx")
         {
         VAO = -1;
         category = 6;
@@ -138,12 +138,13 @@ struct ModelObj6 : public BaseModelObj {
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
         //render all object
-        model.Render();
+        
         ull tmp1, tmp2;
         for (auto ele : objlist) {
             shader.setUint("object_ptr_l", (GLuint)ele);
             shader.setUint("object_ptr_h", (GLuint)((ull)ele >> 32));
             shader.setMat4("model", ele->getmodel());
+            model.Draw(shader);
         }
     }
 
