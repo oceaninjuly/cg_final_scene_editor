@@ -9,10 +9,11 @@
 #include<IMG/ffimage.cpp>
 #include <iostream>
 #include<algorithm>
+
 #include"common.h"
 #include"pointlit.h"
 #include"ground.h"
-
+#include"Render.h"
 #include"light.h"
 #include"Axis_generator.h"
 
@@ -34,7 +35,8 @@ void processInput(GLFWwindow *window);
 uint creatSkyBoxVAO();
 uint createSkyBoxTex(std::string,std::string,std::string);
 
-void rend(Light& main_light);
+void rend(Light& main_light, Render& main_renderer, Shader& shadowShader);
+
 void RenderQuad();
 
 void addlights(Light& light);
@@ -163,7 +165,7 @@ uint createSkyBoxTex(std::string type="1",std::string suffix=".png",std::string 
     return _tid;
 }
 
-void rend(Light& main_light){
+void rend(Light& main_light, Render& main_renderer, Shader& shadowShader){
     // glEnable(GL_DEPTH_TEST);
     //更新观察者信息
     static float winZ;
@@ -182,6 +184,37 @@ void rend(Light& main_light){
     groundshadermdl->render(lightPos, projection, view, camera.Position);
     
     //第二阶段渲染(光照)
+
+    // 阴影
+    //main_renderer.DrawShadowMap(shadowShader);
+
+    glm::mat4 lightProjection, lightView;
+    glm::mat4 lightSpaceMatrix;
+    /*float near_plane = 1.0f, far_plane = 7.5f;
+    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    */
+    glm::vec3 LightDir = main_light.GetDirLightDirection() * 10.0f;
+    glm::vec3 DivPos = camera.Position;
+    DivPos.z -= 20.0f;
+    float near_plane = 1.0f, far_plane = 1000.0f;
+    lightProjection = glm::ortho(-50.0f, 50.0f, -80.0f, 20.0f, near_plane, far_plane);
+    lightView = glm::lookAt(DivPos - LightDir, DivPos, glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+    lightSpaceMatrix = lightProjection * lightView;
+    shadowShader.use();
+    shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+    shadowShader.setMat4("model", glm::mat4(1.0));
+    glViewport(0, 0, 1024, 1024);
+    glBindFramebuffer(GL_FRAMEBUFFER, main_renderer.shadowfb.shadow_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // reset viewport
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_DEPTH_TEST);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -198,6 +231,17 @@ void rend(Light& main_light){
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, objidbuffer);
     main_light.set_light(deffered_shader);
+    
+    deffered_shader.setVec3("lightPos", lightPos);
+    deffered_shader.setMat4("view", view);
+    deffered_shader.setMat4("projection", projection);
+    deffered_shader.setMat4("lightProjection", lightProjection);
+    deffered_shader.setMat4("lightView", lightView);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, main_renderer.shadowfb.shadow_map);
+    RenderQuad();
+
     RenderQuad();
     
     //第三阶段渲染：不属于延迟渲染管线的对象
@@ -213,6 +257,7 @@ void rend(Light& main_light){
     
     //坐标指示器绘制
     if(ground_grid) axismodel->Draw(projection, view);
+    
     //渲染天空盒
     glDepthFunc(GL_LEQUAL);
     glActiveTexture(GL_TEXTURE0);
@@ -272,6 +317,10 @@ int main(){
     
     Shader deffered_shader_("./sdrs/s2_phong.vs", "./sdrs/s2_phong.fs");
     deffered_shader = deffered_shader_;
+
+    // 阴影
+    Shader shadowShader("./sdrs/shadow.vs", "./sdrs/shadow.fs");
+    Shadow_Frame_Buffer shadowfb;
     
     //生成天空盒(顶点对象，纹理)
     VAO_sky = creatSkyBoxVAO();
@@ -293,11 +342,8 @@ int main(){
     Light main_light(parallel);
     addlights(main_light);
 
-
-    for (int i = 0; i < 4; i++) {
-        point_lights.push_back(new Pointlight(pointLightPositions[i]));
-    }
-
+    // 渲染器
+    Render main_renderer(main_light, shadowfb);
 
     // 地面
     groundshadermdl = new Ground_Model("texture/grass.jpg");
@@ -322,9 +368,12 @@ int main(){
     //std::cout<<shadermodel_list[0]->objlist.size()<<std::endl;
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    
     camera.set_speed(6.0f);
+    
     int fpscounter = 0;
     float fpsct = 0;
+    
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -341,8 +390,8 @@ int main(){
         
 
         processInput(window);
-        rend(main_light);//渲染
-
+        rend(main_light, main_renderer, shadowShader);//渲染
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -353,10 +402,7 @@ int main(){
         delete ele;
     }
     for(auto ele : shadermodel_list) delete ele;
-    for (auto ele : point_lights) {
-        ele->Mod = nullptr;
-        delete ele;
-    }
+    
     delete groundobj;
     delete lightCube_model;
     delete groundshadermdl;

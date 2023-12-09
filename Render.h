@@ -14,13 +14,13 @@
 
 class Render
 {
-private:
+public:
     Light& main_light;
     Shadow_Frame_Buffer& shadowfb;
 public:
-    Render(Light& main_light, Shadow_Frame_Buffer& shadowfb): main_light(main_light), shadowfb(shadowfb){}
-    
-    void DrawShadowMap(Shader& shadowShader){
+    Render(Light& main_light, Shadow_Frame_Buffer& shadowfb) : main_light(main_light), shadowfb(shadowfb) {}
+
+    void DrawShadowMap(Shader& shadowShader) {
         glm::vec3 LightDir = main_light.GetDirLightDirection() * 10.0f;
         glm::vec3 DivPos = camera.Position;
         DivPos.z -= 20.f;
@@ -30,14 +30,13 @@ public:
         glViewport(0, 0, shadowfb.SHADOW_WIDTH, shadowfb.SHADOW_HEIGHT);
         shadowfb.bindFrameBuffer();
         glClear(GL_DEPTH_BUFFER_BIT);
-        
+
         for (int i = 0; i < Model_List.size(); i++) {
-            Model_List[i].Draw(shadowShader, camera.Position, shadowfb.lightProjection, shadowfb.lightView);
+            Model_List[i]->Draw(shadowShader, camera.Position, shadowfb.lightProjection, shadowfb.lightView);
         }
 
         shadowfb.unbindFrameBuffer();
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     }
 

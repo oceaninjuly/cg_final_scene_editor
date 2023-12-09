@@ -11,7 +11,7 @@
 
 class Shadow_Frame_Buffer
 {
-private:
+public:
     unsigned int shadow_fbo;
     unsigned int shadow_map;
 
