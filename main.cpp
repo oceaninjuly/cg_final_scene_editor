@@ -564,14 +564,15 @@ void processInput(GLFWwindow *window)
             picking_last_time = glfwGetTime();
 
             if ((GLuint)target_obj != 0) { // 如果选中了某个模型,如果选中的模型不是地面，进入编辑模式
-                if ((GLuint)target_obj != (GLuint)groundobj)
+                if ((GLuint)target_obj != (GLuint)groundobj) {
                     isModelSelected = true;
-                if ((GLuint)target_obj == (GLuint)groundobj && (GLuint)last_obj != (GLuint)groundobj && isModelSelected == true) { // 如果现在选择的是地面，而上一次选择的模型不是地面，则移动模型位置
-                    if (last_obj->Mod->category == 1 || last_obj->Mod->category == 2)
+                } 
+                else if ((GLuint)target_obj == (GLuint)groundobj && (GLuint)last_obj != (GLuint)groundobj && isModelSelected == true) { // 如果现在选择的是地面，而上一次选择的模型不是地面，则移动模型位置
+                    if (last_obj->Mod->category == 3 || last_obj->Mod->category == 4)
                         last_obj->setPos(pos.x, pos.y + 0.5 * ModelscaleFactor, pos.z);
-                    else if (last_obj->Mod->category >= 3)
+                    else if (last_obj->Mod->category == 1)
                         last_obj->setPos(pos.x, pos.y, pos.z);
-
+                    target_obj = nullptr;
                     isModelSelected = false;
                 }
             }
@@ -770,9 +771,9 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
     float picking_last_time = glfwGetTime();
 
-    if (isModelSelected) {
+    /*if (isModelSelected) {
         
-    }
+    }*/
 
     if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj) {
 
