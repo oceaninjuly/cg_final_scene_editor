@@ -549,38 +549,38 @@ void processInput(GLFWwindow *window)
     }
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS &&
-            glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
+        glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
         if (glfwGetTime() - picking_last_time > 0.25) {
             Object* temp_obj = nullptr;
             temp_obj = get_Target_object((int)lastX, (int)lastY);
-            glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
             if (temp_obj == target_obj) {
                 target_obj = nullptr;
                 isModelSelected = false;
             }
             else
                 target_obj = temp_obj;
-             
+            glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+            std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
             picking_last_time = glfwGetTime();
-            
+
             if ((GLuint)target_obj != 0) { // 如果选中了某个模型,如果选中的模型不是地面，进入编辑模式
                 if ((GLuint)target_obj != (GLuint)groundobj)
                     isModelSelected = true;
-                    std::printf("last_ptr: %u, target_ptr: %u; point world position: %f,%f,%f\n", (GLuint)last_obj, (GLuint)target_obj, pos.x, pos.y, pos.z);
-                }
-                else if ((GLuint)temp_obj == (GLuint)groundobj &&
-                    (GLuint)last_obj != (GLuint)groundobj && isModelSelected == true) {
+                if ((GLuint)target_obj == (GLuint)groundobj && (GLuint)last_obj != (GLuint)groundobj && isModelSelected == true) { // 如果现在选择的是地面，而上一次选择的模型不是地面，则移动模型位置
                     if (last_obj->Mod->category == 1 || last_obj->Mod->category == 2)
                         last_obj->setPos(pos.x, pos.y + 0.5 * ModelscaleFactor, pos.z);
                     else if (last_obj->Mod->category >= 3)
-                        last_obj->setPos(pos.x, pos.y, pos.z);      
+                        last_obj->setPos(pos.x, pos.y, pos.z);
+
+                    isModelSelected = false;
+                }
             }
             else {
                 isModelSelected = false;
             }
 
             last_obj = target_obj;
-            std::cout << "next mode: " << isModelSelected << endl;
+            cout << "next mode: " << isModelSelected << endl;
         }
     }
 
