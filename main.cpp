@@ -353,6 +353,7 @@ int main(){
     std::vector<Object*> Objectlist3;*/
     
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
+    groundobj->scalemat = glm::scale(groundobj->scalemat, glm::vec3(0.5f));
     
     //生成物体
     /*auto ground = decode("./ground/1.jpg");
