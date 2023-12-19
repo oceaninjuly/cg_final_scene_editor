@@ -16,6 +16,7 @@
 #include"light.h"
 #include"Axis_generator.h"
 #include<Windows.h>
+#include <chrono>
 #include<filesystem>
 
 #include"Rain_generator.h"
@@ -31,7 +32,8 @@ Axismodel* axismodel;
 //Rain
 RainModel* rainmodel;
 
-
+//记录开始时间
+auto startTime = std::chrono::high_resolution_clock::now();
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -234,6 +236,16 @@ void rend(Light& main_light){
     glBindTexture(GL_TEXTURE_2D, specolorbuffer);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, objidbuffer);
+
+    // 传入控制参数，用来控制render_style
+    // 获取经过的时间
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = endTime - startTime;
+    // 将时间间隔转换为float
+    auto time = std::chrono::duration_cast<std::chrono::duration<float>>(elapsedTime).count();
+    deffered_shader.setUint("render_style", (GLuint)render_style);
+    deffered_shader.setFloat("time", time);
+
     main_light.set_light(deffered_shader);
     RenderQuad();
     

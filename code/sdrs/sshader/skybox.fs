@@ -33,7 +33,7 @@ void change_style( )
         // 再除以color_num（取5），将颜色分割到1，4/5，……，0，一共6个颜色区间
         // 这样实现颜色的有限化，可以降低画面复杂度，接近于油画、像素等风格
         // 这里天空盒取多一点颜色，使得天空的精细度得以保留
-        float color_num = 15.0;
+        float color_num = 30.0;
         vec3 quantizedColor = round(FragColor.rgb * color_num) / color_num;
         FragColor = vec4(quantizedColor, 1.0);
         //添加扰动，增强像素效果

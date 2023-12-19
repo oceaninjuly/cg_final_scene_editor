@@ -61,6 +61,7 @@ private:
             deffered_shader.setVec3("dirLight.specular", parallel_light.specular);
             
             // point light
+            deffered_shader.setInt("num_lights", point_lights.size());
             for (int i = 0; i < point_lights.size(); i++) {
                 
                 std::string tmp = "pointLights[" + std::to_string(i) + "]";
