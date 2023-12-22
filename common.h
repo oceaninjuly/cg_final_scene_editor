@@ -19,7 +19,7 @@ unsigned int _textureBox = 0;
 unsigned int _textureSky = 0;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 20.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -52,7 +52,7 @@ vector<Object*> Models;
 // 地面模型
 Object* groundobj;
 //网格开关
-int ground_grid = 1;
+int ground_grid = 0;
 
 // 缩放因子
 float ModelscaleFactor = 1.0f;

@@ -236,7 +236,8 @@ void rend(Light& main_light){
     glBindTexture(GL_TEXTURE_2D, objidbuffer);
     main_light.set_light(deffered_shader);
     RenderQuad();
-    
+    //渲染风格控制参数
+    deffered_shader.setUint("render_style", (GLuint)render_style);
     //第三阶段渲染：不属于延迟渲染管线的对象
     glActiveTexture(GL_TEXTURE0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
@@ -329,8 +330,8 @@ int main(){
     DirLight parallel{
     glm::vec3(0.3f, -0.7f, 1.0f),
     glm::vec3(0.3f, 0.3f, 0.3f),
-    glm::vec3(0.3f, 0.3f, 0.3f),
-    glm::vec3(0.4f, 0.4f, 0.4f)
+    glm::vec3(0.3f, 0.3f, 0.3f)
+    //glm::vec3(0.4f, 0.4f, 0.4f)
     };
 
     lightCube_model = new LightCube();
@@ -347,6 +348,7 @@ int main(){
     groundshadermdl = new Ground_Model(m_path + "texture/grass.jpg");
     shadermodel_list.push_back(new ModelObj3());
     shadermodel_list.push_back(new ModelObj4());
+    shadermodel_list.push_back(new ModelObj1("model/nanosuit/nanosuit.obj"));
     shadermodel_list.push_back(new ModelObj1());
     //shadermodel_list.push_back(new ModelObj1(m_path + "model/tree.fbx"));
 
@@ -608,7 +610,7 @@ void processInput(GLFWwindow *window)
             // 1 被按下
             if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
                 float currentTime = glfwGetTime();
-                if (currentTime - last_time_1 > 2) {
+                if (currentTime - last_time_1 > 0.25) {
                     if (isModelSelected == false) {
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0.5, 0);
@@ -620,13 +622,28 @@ void processInput(GLFWwindow *window)
             // 2 被按下
             if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
                 float currentTime = glfwGetTime();
-                if (currentTime - last_time_2 > 2) {
+                if (currentTime - last_time_2 > 0.25) {
                     if (isModelSelected == false) {
                         glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
                         pos += glm::vec3(0, 0, 0);
                         Models.push_back(new Object(pos, shadermodel_list[2]));
+                        Models.back()->scalemat = glm::scale(Models.back()->scalemat, glm::vec3(0.15f));
                     }
                     last_time_2 = currentTime;
+                }
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+                float currentTime = glfwGetTime();
+                if (currentTime - last_time_3 > 0.25) {
+                    if (isModelSelected == false) {
+                        glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+                        pos += glm::vec3(0, 0, 0);
+                        Models.push_back(new Object(pos, shadermodel_list[3]));
+                        Models.back()->scalemat = glm::scale(Models.back()->scalemat, glm::vec3(0.02f));
+                        Models.back()->scalemat = glm::rotate(Models.back()->scalemat,glm::radians(-90.0f), glm::vec3(1,0,0));
+                    }
+                    last_time_3 = currentTime;
                 }
             }
         }
@@ -731,20 +748,24 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
     float distance = glm::sqrt(xoffset * xoffset + yoffset * yoffset);
 
-
+    if (target_obj == nullptr) {
+        isRotate = FALSE;
+    }
 
     if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj) {
-
-
-        float angle = glm::length(distance) * 0.005f;
-        glm::vec3 axis = glm::normalize(glm::vec3(yoffset, xoffset, 0.0f));
-        glm::quat rotationQuat = glm::angleAxis(angle, axis);
-
-        // 将四元数转为旋转矩阵
-        glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
-
-        //origin = target_obj->modelmat;
-        target_obj->modelmat = target_obj->modelmat* rotationMatrix;
+        float sensity = 0.005f;
+        glm::mat3 inverse_ = glm::inverse(glm::mat3(target_obj->scalemat));
+        glm::vec3 horizonal_axis =  glm::normalize(inverse_ * glm::cross(camera.Forward, camera.WorldUp));
+        glm::vec3 vertical_axis = camera.WorldUp;
+        target_obj->scalemat = glm::rotate(target_obj->scalemat, xoffset * sensity, vertical_axis);
+        if (!(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS))
+            target_obj->scalemat = glm::rotate(target_obj->scalemat, -yoffset * sensity, horizonal_axis);
+        //glm::vec3 axis = glm::normalize(glm::vec3(yoffset, xoffset, 0.0f));
+        //glm::quat rotationQuat = glm::angleAxis(angle, axis);
+        //// 将四元数转为旋转矩阵
+        //glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuat);
+        ////origin = target_obj->modelmat;
+        //target_obj->modelmat = target_obj->modelmat* rotationMatrix;
 
     }
 
