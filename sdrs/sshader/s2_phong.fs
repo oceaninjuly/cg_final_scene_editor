@@ -48,7 +48,8 @@ struct SpotLight {
 
 vec3 Diffuse;
 vec3 Specular;
-float Specular_strengh=0.1f;
+float Diffuse_strengh=1.0f;
+float Specular_strengh=1.0f;
 float shininess = 16.0f;
 
 uniform uint render_style;
@@ -132,6 +133,7 @@ void main()
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
+
     Specular = texture(Specolor, TexCoords).rgb;
     Specular_strengh = texture(Specolor, TexCoords).a;
     uvec3 obj_ptr = texture(objid,TexCoords).rgb;
@@ -190,8 +192,8 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     // combine results
     vec3 ambient = light.ambient * Diffuse;
-    vec3 diffuse = light.diffuse * diff * Diffuse;
-    vec3 specular = light.specular * spec * Specular;
+    vec3 diffuse = light.diffuse * diff * Diffuse * Diffuse_strengh;
+    vec3 specular = light.specular * spec * Specular * Specular_strengh;
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
@@ -216,8 +218,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
     // combine results
     vec3 ambient = light.ambient * Diffuse;
-    vec3 diffuse = light.diffuse * diff * Diffuse;
-    vec3 specular = light.specular * spec * Specular;
+    vec3 diffuse = light.diffuse * diff * Diffuse * Diffuse_strengh;
+    vec3 specular = light.specular * spec * Specular * Specular_strengh;
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;

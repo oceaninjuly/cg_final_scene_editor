@@ -94,8 +94,11 @@ struct ModelObj4 : public BaseModelObj { // 有纹理的箱子
 
 struct ModelObj1 : public BaseModelObj {
     Model ourModel;
-    ModelObj1():
-        BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
+    float ds = 1.0f;
+    float ss = 1.0f;
+    float shin = 32.0f;
+    ModelObj1(float diffuse_strength = 1.0f, float specular_strength = 1.0f, float shiness = 32.0f):
+        BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),ds(diffuse_strength),ss(specular_strength),shin(shiness),
         ourModel("model/phoenix_ugv.md2")
         //ourModel("model/box.fbx")
         {
@@ -103,8 +106,8 @@ struct ModelObj1 : public BaseModelObj {
         category = 1;
     }
 
-    ModelObj1(const string path) :
-        BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),
+    ModelObj1(const string path,float diffuse_strength = 1.0f,float specular_strength = 1.0f,float shiness = 32.0f):
+        BaseModelObj(s_path + "model_loading.vs", s_path + "model_loading.fs"),ds(diffuse_strength), ss(specular_strength), shin(shiness),
         ourModel(path) {
         VAO = -1;
         if (ourModel.success_flag == 0) {
@@ -127,6 +130,9 @@ struct ModelObj1 : public BaseModelObj {
         for (auto ele : objlist) {
             shader.setUint("object_ptr_l", (GLuint)ele);
             shader.setUint("object_ptr_h", (GLuint)((ull)ele >> 32));
+            shader.setFloat("diffuse_strength",ds);
+            shader.setFloat("specular_strength", ss);
+            shader.setFloat("shiness", shin);
             shader.setMat4("model", ele->getmodel());
             ourModel.Draw(shader);
             //std::cout << "Render completed:" << category << '\t';

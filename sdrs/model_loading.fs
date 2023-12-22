@@ -13,15 +13,18 @@ uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform uint object_ptr_h;
 uniform uint object_ptr_l;
+uniform float diffuse_strength;
+uniform float specular_strength;
+uniform float shiness;
 
 void main()
 {    
     FragColor = texture(texture_diffuse1, TexCoords);
-    FragColor.a = 0.5f;
+    FragColor.a = diffuse_strength;
     Specolor = texture(texture_specular1, TexCoords);
-    Specolor.a = 0.5f;
+    Specolor.a = specular_strength;
     Position = FragPos;
     gNormal.rgb = normalize(Normal);
-    gNormal.a = 32.0f;
+    gNormal.a = shiness;
     obj_ptr = uvec4(object_ptr_h,object_ptr_l,0,0);
 }

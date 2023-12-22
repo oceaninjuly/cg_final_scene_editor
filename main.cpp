@@ -350,18 +350,18 @@ int main(){
     shadermodel_list.push_back(new ModelObj4());
     shadermodel_list.push_back(new ModelObj1("model/nanosuit/nanosuit.obj"));
     shadermodel_list.push_back(new ModelObj1());
+    shadermodel_list.push_back(new ModelObj1("model/NPC_Avatar_Girl_Sword_Chiori/NPC_Avatar_Girl_Sword_Chiori (merge).fbx",0.5,0.2,6.0f));
     //shadermodel_list.push_back(new ModelObj1(m_path + "model/tree.fbx"));
 
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
     
-    Models.push_back(new Object(glm::vec3(0, 0, 1), shadermodel_list[1]));
+    Models.push_back(new Object(glm::vec3(3, -0.5, 1), shadermodel_list[1]));
     Models.push_back(new Object(glm::vec3(0, -1, -4), shadermodel_list[2]));
     //Models.push_back(new Object(glm::vec3(22, 1,0 ), shadermodel_list[3]));
     Models[1]->scalemat = glm::scale(Models[1]->scalemat, glm::vec3(0.15f));
     //Models[2]->scalemat = glm::scale(Models[2]->scalemat, glm::vec3(0.05f));
-    
     for(int i=0;i<5;i++){
-        Models.push_back(new Object(glm::vec3(i-5,0,0),shadermodel_list[0]));
+        Models.push_back(new Object(glm::vec3(-3,-0.5,i-2),shadermodel_list[0]));
     }
 
 
@@ -632,7 +632,6 @@ void processInput(GLFWwindow *window)
                     last_time_2 = currentTime;
                 }
             }
-
             if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
                 float currentTime = glfwGetTime();
                 if (currentTime - last_time_3 > 0.25) {
@@ -644,6 +643,17 @@ void processInput(GLFWwindow *window)
                         Models.back()->scalemat = glm::rotate(Models.back()->scalemat,glm::radians(-90.0f), glm::vec3(1,0,0));
                     }
                     last_time_3 = currentTime;
+                }
+            }
+            if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+                float currentTime = glfwGetTime();
+                if (currentTime - last_time_4 > 0.25) {
+                    if (isModelSelected == false) {
+                        glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+                        pos += glm::vec3(0, 0, 0);
+                        Models.push_back(new Object(pos, shadermodel_list[4]));
+                    }
+                    last_time_4 = currentTime;
                 }
             }
         }
