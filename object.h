@@ -126,7 +126,6 @@ struct ModelObj1 : public BaseModelObj {
         shader.setMat4("view", view);
         //render all object
         glBindVertexArray(VAO);
-        ull tmp1, tmp2;
         for (auto ele : objlist) {
             shader.setUint("object_ptr_l", (GLuint)ele);
             shader.setUint("object_ptr_h", (GLuint)((ull)ele >> 32));
