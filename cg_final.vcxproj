@@ -75,10 +75,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>.\depends\include;.\depends\build\include;.\depends\build\include\opencv2;$(IncludePath)</IncludePath>
     <LibraryPath>.\depends\libs;.\depends\build\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)release</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>.\depends\include;.\depends\build\include;.\depends\build\include\opencv2;$(IncludePath)</IncludePath>
     <LibraryPath>.\depends\libs;.\depends\build\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)release</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>C:\Users\predator\source\repos\cg_final_scene_editor\depends\include;$(IncludePath)</IncludePath>

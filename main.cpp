@@ -9,6 +9,10 @@
 #include<IMG/ffimage.cpp>
 #include <iostream>
 #include<algorithm>
+
+#include <windows.h>  
+#include <commdlg.h> 
+
 #include"common.h"
 #include"pointlit.h"
 #include"ground.h"
@@ -60,6 +64,35 @@ uint render_style_number = 5;
 //point_light
 std::vector<Pointlight*> point_lights;
 
+void GetPath()
+{
+    OPENFILENAME ofn;      // 公共对话框结构。     
+    TCHAR szFile[MAX_PATH]; // 保存获取文件名称的缓冲区。               
+    // 初始化选择文件对话框。     
+    ZeroMemory(&ofn, sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = (LPCWSTR)"All(*.*)\0*.*\0Text(*.txt)\0*.TXT\0\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    //ofn.lpTemplateName =  MAKEINTRESOURCE(ID_TEMP_DIALOG);    
+    // 显示打开选择文件对话框。
+    if (GetOpenFileName(&ofn))
+    {
+        //显示选择的文件。 
+        std::cout << szFile << std::endl;
+        OutputDebugString(szFile);    //这一句是显示路径吗？为什么不显示？
+        OutputDebugString((LPCWSTR)"\r\n");
+    }
+    //system("pause");
+}
+
 void load_thread() {
     string path;
     glm::vec3 pos = glm::vec3(0);
@@ -67,7 +100,6 @@ void load_thread() {
     cin >> path;
     std::cout << "Please enter the position : x y z" << endl;
     std::cin >> pos.x >> pos.y >> pos.z;
-
     bool existed = 0;
     int cata;
     for (BaseModelObj* ele : shadermodel_list) {    //遍历现有的渲染器

@@ -47,14 +47,8 @@
     <ClInclude Include="light.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Render.h">
+    <ClInclude Include="Rain_generator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="shadow.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>
