@@ -61,33 +61,30 @@ uint render_style_number = 5;
 std::vector<Pointlight*> point_lights;
 
 void load_thread() {
-    while (1) {
-        string path;
-        glm::vec3 pos = glm::vec3(0);
-        std::cout << "ENTWR THE PATH OF THE MODEL, EXAMPLE: model/tree.fbx" << endl;
-        cin >> path;
-        std::cout << "Please enter the position : x y z" << endl;
-        std::cin >> pos.x >> pos.y >> pos.z;
+    string path;
+    glm::vec3 pos = glm::vec3(0);
+    std::cout << "ENTWR THE PATH OF THE MODEL, EXAMPLE: model/tree.fbx" << endl;
+    cin >> path;
+    std::cout << "Please enter the position : x y z" << endl;
+    std::cin >> pos.x >> pos.y >> pos.z;
 
-        bool existed = 0;
-        int cata;
-        for (BaseModelObj* ele : shadermodel_list) {    //遍历现有的渲染器
-            if (ele->modelPath == path) {
-                existed = 1;
-                cata = ele->category;
-            }
+    bool existed = 0;
+    int cata;
+    for (BaseModelObj* ele : shadermodel_list) {    //遍历现有的渲染器
+        if (ele->modelPath == path) {
+            existed = 1;
+            cata = ele->category;
         }
-
-        if (existed) {       //存在则加一个实体
-            Models.push_back(new Object(pos, shadermodel_list[cata - 1]));
-            Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
-        }
-        else {        //不存在则创建渲染器
-            shadermodel_list.push_back(new ModelObj1(path));
-            Models.push_back(new Object(pos, shadermodel_list[shadermodel_list.size() - 1]));
-            Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
-
-        }
+    }
+    if (existed) {       //存在则加一个实体
+        Models.push_back(new Object(pos, shadermodel_list[cata - 1]));
+        Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
+    }
+    else {        //不存在则创建渲染器
+        BaseModelObj* tmp = new ModelObj1(path);
+        shadermodel_list.push_back(tmp);
+        Models.push_back(new Object(pos, shadermodel_list[shadermodel_list.size() - 1]));
+        Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
     }
 }
 // 光照
@@ -381,9 +378,9 @@ int main(){
     int fpscounter = 0;
     float fpsct = 0;
 
-    HANDLE h; //线程句柄
-    h = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)load_thread, NULL, 1, 0); //创建子线程
-    ResumeThread(h);
+    //HANDLE h; //线程句柄
+    //h = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)load_thread, NULL, 1, 0); //创建子线程
+    //ResumeThread(h);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -421,7 +418,7 @@ int main(){
     delete groundshadermdl;
     delete axismodel;
     delete rainmodel;
-    CloseHandle(h);
+    //CloseHandle(h);
     glfwTerminate();
     return 0;
 }
@@ -448,7 +445,8 @@ void processInput(GLFWwindow *window)
     static float C_last_time = 0, UP_last_time = 0, DOWN_last_time = 0, picking_last_time = 0, O_last_time = 0,
         X_last_time = 0, Q_last_time = 0, TAB_last_time;
     static int P_pressed = 0,LALT_pressed=0;
-    static float last_time_0 = 0, last_time_1 = 0, last_time_2 = 0, last_time_3 = 0, last_time_4 = 0, last_time_5;
+    static float last_time_0 = 0, last_time_1 = 0, last_time_2 = 0, last_time_3 = 0, last_time_4 = 0, last_time_5 = 0,
+        last_time_6 = 0;
     
     float lastPressTime = 0.0;
     const float delayTime = 0.5;
@@ -622,14 +620,12 @@ void processInput(GLFWwindow *window)
                 float currentTime = glfwGetTime();
                 if (currentTime - last_time_1 > 0.25) {
                     if (isModelSelected == false) {
-                        glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
-                        pos += glm::vec3(0, 0.5, 0);
-                        Models.push_back(new Object(pos, shadermodel_list[1]));
+                        load_thread();
                     }
                     last_time_1 = currentTime;
                 }
             }
-            // 2 被按下
+            // 2-6 被按下
             if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
                 float currentTime = glfwGetTime();
                 if (currentTime - last_time_2 > 0.25) {
@@ -676,6 +672,17 @@ void processInput(GLFWwindow *window)
                         Models.back()->scalemat = glm::rotate(Models.back()->scalemat, glm::radians(-90.0f), glm::vec3(0, 1, 0));
                     }
                     last_time_5 = currentTime;
+                }
+            }
+            if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+                float currentTime = glfwGetTime();
+                if (currentTime - last_time_6 > 0.25) {
+                    if (isModelSelected == false) {
+                        glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+                        pos += glm::vec3(0, 0.5, 0);
+                        Models.push_back(new Object(pos, shadermodel_list[1]));
+                    }
+                    last_time_6 = currentTime;
                 }
             }
         }
