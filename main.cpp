@@ -74,16 +74,18 @@ void load_thread() {
                 cata = ele->category;
             }
         }
-        
+        glm::vec3 pos;
+        cout << "Enter the position of the model:\n";
+        cin >> pos.x >> pos.y >> pos.z;
         if (existed) {       //存在则加一个实体
-            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[cata-1]));
+            Models.push_back(new Object(pos, shadermodel_list[cata-1]));
             Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
         } 
         else {        //不存在则创建渲染器
+            
             shadermodel_list.push_back(new ModelObj1(path));
-            Models.push_back(new Object(glm::vec3(0, 0, 0), shadermodel_list[shadermodel_list.size()-1]));
+            Models.push_back(new Object(pos, shadermodel_list[shadermodel_list.size()-1]));
             Models[Models.size()-1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
-
         }
     }
 }
@@ -324,7 +326,7 @@ int main(){
     
     //生成天空盒(顶点对象，纹理)
     VAO_sky = creatSkyBoxVAO();
-    _textureSky = createSkyBoxTex();
+    _textureSky = createSkyBoxTex("1");//"2","3"
     _shader_sky.initialize(s_path + "sshader/skybox.vs", s_path + "sshader/skybox.fs");
     //初始化Axis
     axismodel = new Axismodel();

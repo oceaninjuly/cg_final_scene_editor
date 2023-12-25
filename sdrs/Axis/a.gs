@@ -12,7 +12,8 @@ void main() {
     fColor = vec3(1.0,0.0,0.0);
     gl_Position = gl_in[0].gl_Position; 
     EmitVertex();
-    gl_Position = gl_in[0].gl_Position + vec4(0.1*axis_X,0.0,0.0);
+    gl_Position = gl_in[0].gl_Position + 
+        vec4(0.1*axis_X,0.0,0.0);
     EmitVertex();
     EndPrimitive();
 

@@ -26,7 +26,8 @@ void main()
     FragColor.a = 0.1f;
     Specolor = vec4(FragColor.a);
     Position = FragPos;
-    if(ground_grid==1 &&(abs(round(FragPos.x)-FragPos.x)<0.02 || abs(round(FragPos.z)-FragPos.z)<0.02)){
+    if( ground_grid==1 &&(abs(round(FragPos.x)-FragPos.x)<0.02 || 
+            abs(round(FragPos.z)-FragPos.z)<0.02)){
         FragColor += vec4(0.1,0.1,0.1,0.0);
     }
     gNormal.rgb = normalize(Normal);

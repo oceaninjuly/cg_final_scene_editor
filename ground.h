@@ -35,7 +35,7 @@ std::vector<std::vector<uchar> > decode(const std::string path)   //pathΪͼƬ·
     return array;
 }
 
-std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale = 1.0f)   //pathΪͼƬ·��
+std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale = 1.0f)  
 {
     cv::Mat nimg = cv::imread(path.c_str());                // 将图片传入Mat容器中
     //       显示原图片
@@ -46,14 +46,14 @@ std::vector<std::vector<glm::vec3> > decode2(const std::string path,float scale 
     cv::imshow("old", img);
     cv::waitKey(0);*/
     
-    int w = img.cols;     //����Ϊ3ͨ�������Ҫ��ͼƬ��ͨ����
+    int w = img.cols;     
     int h = img.rows;
     int cen_w = w / 2,cen_h = h/2;
 
-    std::vector<std::vector<glm::vec3> > array(h, std::vector<glm::vec3>(w));      //��ʼ����άvector
+    std::vector<std::vector<glm::vec3> > array(h, std::vector<glm::vec3>(w));  
     for (int i = 0; i < h; i++)
     {
-        uchar* inData = img.ptr<uchar>(i);            //ptrΪָ��ͼƬ����ָ�룬����iΪ����
+        uchar* inData = img.ptr<uchar>(i); //图片的其中一列           
         for (int j = 0; j < w; j++)
         {
             array[i][j] = glm::vec3((i - cen_h)*scale, (double)inData[j]*scale * 60 / 255, (j - cen_w)*scale);
