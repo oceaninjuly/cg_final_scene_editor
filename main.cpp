@@ -89,8 +89,8 @@ void load_thread() {
 }
 // 光照
 glm::vec3 pointLightPositions[] = {
-    glm::vec3(0.7f,  -0.9f,  2.0f),
-    glm::vec3(2.3f, -0.9f, -4.0f),
+    glm::vec3(0.7f, 2.0f,  2.0f),
+    glm::vec3(2.3f, 2.0f, -4.0f),
     glm::vec3(-4.0f,  2.0f, -6.0f),
     glm::vec3(0.0f,  -0.9f, -3.0f)
 };
@@ -234,6 +234,10 @@ void rend(Light& main_light){
     glBindTexture(GL_TEXTURE_2D, specolorbuffer);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, objidbuffer);
+    //输入选定物体指针
+    deffered_shader.setUint("target_obj_l", (GLuint)target_obj);
+    deffered_shader.setUint("target_obj_h", (GLuint)((ull)target_obj >> 32));
+
     main_light.set_light(deffered_shader);
     RenderQuad();
     //渲染风格控制参数
@@ -343,7 +347,6 @@ int main(){
         point_lights.push_back(new Pointlight(pointLightPositions[i]));
     }
 
-
     // 地面
     groundshadermdl = new Ground_Model(m_path + "texture/grass.jpg");
     shadermodel_list.push_back(new ModelObj3());
@@ -351,6 +354,7 @@ int main(){
     shadermodel_list.push_back(new ModelObj1("model/nanosuit/nanosuit.obj"));
     shadermodel_list.push_back(new ModelObj1());
     shadermodel_list.push_back(new ModelObj1("model/NPC_Avatar_Girl_Sword_Chiori/NPC_Avatar_Girl_Sword_Chiori (merge).fbx",0.5,0.2,6.0f));
+    shadermodel_list.push_back(new ModelObj1("model/antique-desk/source/001_SmallTableSF_low.fbx"));
     //shadermodel_list.push_back(new ModelObj1(m_path + "model/tree.fbx"));
 
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
@@ -363,7 +367,9 @@ int main(){
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(-3,-0.5,i-2),shadermodel_list[0]));
     }
-
+    Models.push_back(new Object(glm::vec3(5, -1, -4), shadermodel_list[5]));
+    Models.back()->scalemat = glm::scale(Models.back()->scalemat, glm::vec3(0.1f));
+    Models.back()->scalemat = glm::rotate(Models.back()->scalemat,glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
     //std::cout<<shadermodel_list[0]->objlist.size()<<std::endl;
     // tell GLFW to capture our mouse
@@ -436,9 +442,10 @@ void addlights(Light& light) {
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    static float C_last_time=0,UP_last_time=0,DOWN_last_time=0,picking_last_time=0, O_last_time=0, X_last_time=0, Q_last_time = 0, TAB_last_time;
+    static float C_last_time = 0, UP_last_time = 0, DOWN_last_time = 0, picking_last_time = 0, O_last_time = 0,
+        X_last_time = 0, Q_last_time = 0, TAB_last_time;
     static int P_pressed = 0,LALT_pressed=0;
-    static float last_time_0 = 0, last_time_1 = 0, last_time_2 = 0, last_time_3 = 0, last_time_4 = 0;
+    static float last_time_0 = 0, last_time_1 = 0, last_time_2 = 0, last_time_3 = 0, last_time_4 = 0, last_time_5;
     
     float lastPressTime = 0.0;
     const float delayTime = 0.5;
@@ -654,6 +661,18 @@ void processInput(GLFWwindow *window)
                         Models.push_back(new Object(pos, shadermodel_list[4]));
                     }
                     last_time_4 = currentTime;
+                }
+            }
+            if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+                float currentTime = glfwGetTime();
+                if (currentTime - last_time_5 > 0.25) {
+                    if (isModelSelected == false) {
+                        glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+                        Models.push_back(new Object(pos, shadermodel_list[5]));
+                        Models.back()->scalemat = glm::scale(Models.back()->scalemat, glm::vec3(0.1f));
+                        Models.back()->scalemat = glm::rotate(Models.back()->scalemat, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+                    }
+                    last_time_5 = currentTime;
                 }
             }
         }

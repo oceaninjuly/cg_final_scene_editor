@@ -50,8 +50,6 @@ private:
             deffered_shader.setInt("Specolor", 3);
             deffered_shader.setInt("objid", 4);
             deffered_shader.setInt("shadowMap ", 5);
-            deffered_shader.setUint("target_obj_l", (GLuint)target_obj);
-            deffered_shader.setUint("target_obj_h", (GLuint)((ull)target_obj >> 32));
             deffered_shader.setFloat("material.shininess", 32.0f);
             
             // directional light

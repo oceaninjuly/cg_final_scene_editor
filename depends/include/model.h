@@ -240,11 +240,11 @@ private:
             Texture texture;
             texture.id = TextureFromFile("white.jpg", "texture");
             texture.type = typeName;
-            texture.path = "texture/white.jpg";
+            texture.path = "white.jpg";
             textures.push_back(texture);
             textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
             if (texture.id >= 0)
-            printf("Loaded texture '%s'\n", "texture/white.jpg");
+            printf("Loaded texture '%s'\n", "white.jpg");
         }
         
         return textures;
