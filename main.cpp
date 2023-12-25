@@ -63,29 +63,30 @@ std::vector<Pointlight*> point_lights;
 void load_thread() {
     while (1) {
         string path;
-        std::cout<<"ENTWR THE PATH OF THE MODEL, EXAMPLE: model/tree.fbx"<<endl;
+        glm::vec3 pos = glm::vec3(0);
+        std::cout << "ENTWR THE PATH OF THE MODEL, EXAMPLE: model/tree.fbx" << endl;
         cin >> path;
-       
+        std::cout << "Please enter the position : x y z" << endl;
+        std::cin >> pos.x >> pos.y >> pos.z;
+
         bool existed = 0;
         int cata;
-        for (BaseModelObj*  ele : shadermodel_list) {    //遍历现有的渲染器
+        for (BaseModelObj* ele : shadermodel_list) {    //遍历现有的渲染器
             if (ele->modelPath == path) {
                 existed = 1;
                 cata = ele->category;
             }
         }
-        glm::vec3 pos;
-        cout << "Enter the position of the model:\n";
-        cin >> pos.x >> pos.y >> pos.z;
+
         if (existed) {       //存在则加一个实体
-            Models.push_back(new Object(pos, shadermodel_list[cata-1]));
+            Models.push_back(new Object(pos, shadermodel_list[cata - 1]));
             Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
-        } 
+        }
         else {        //不存在则创建渲染器
-            
             shadermodel_list.push_back(new ModelObj1(path));
-            Models.push_back(new Object(pos, shadermodel_list[shadermodel_list.size()-1]));
-            Models[Models.size()-1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
+            Models.push_back(new Object(pos, shadermodel_list[shadermodel_list.size() - 1]));
+            Models[Models.size() - 1]->scalemat = glm::scale(Models[Models.size() - 1]->scalemat, glm::vec3(0.05f));
+
         }
     }
 }
