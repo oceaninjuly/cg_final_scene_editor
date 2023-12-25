@@ -399,7 +399,7 @@ int main(){
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(-3,-0.5,i-2),shadermodel_list[0]));
     }
-    Models.push_back(new Object(glm::vec3(5, -1, -4.5), shadermodel_list[5]));
+    Models.push_back(new Object(glm::vec3(5, -1.05, -4.5), shadermodel_list[5]));
     Models.back()->scalemat = glm::scale(Models.back()->scalemat, glm::vec3(5.0f));
     //Models.back()->scalemat = glm::rotate(Models.back()->scalemat,glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
@@ -478,7 +478,7 @@ void processInput(GLFWwindow *window)
         X_last_time = 0, Q_last_time = 0, TAB_last_time;
     static int P_pressed = 0,LALT_pressed=0;
     static float last_time_0 = 0, last_time_1 = 0, last_time_2 = 0, last_time_3 = 0, last_time_4 = 0, last_time_5 = 0,
-        last_time_6 = 0;
+        last_time_6 = 0, last_time_E=0;
     
     float lastPressTime = 0.0;
     const float delayTime = 0.5;
@@ -633,7 +633,7 @@ void processInput(GLFWwindow *window)
     
     // 左Alt 和 X 被按下生成
     if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-        if (glfwGetTime() - X_last_time > 0.25 && isModelSelected == false) {
+        if (glfwGetTime() - X_last_time > 0.25) {
             // 0 被按下生成0
             if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
                 float currentTime = glfwGetTime();
@@ -715,6 +715,17 @@ void processInput(GLFWwindow *window)
                         Models.push_back(new Object(pos, shadermodel_list[1]));
                     }
                     last_time_6 = currentTime;
+                }
+            }
+            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+                float currentTime = glfwGetTime();
+                if (currentTime - last_time_E > 0.25) {
+                    if (isModelSelected == true && target_obj != groundobj) {
+                        glm::vec3 pos = get_Target_world((int)lastX, (int)lastY);
+                        Models.push_back(new Object(pos, target_obj->Mod));
+                        Models.back()->scalemat = target_obj->scalemat;
+                        last_time_E = currentTime;
+                    }
                 }
             }
         }
