@@ -354,7 +354,7 @@ int main(){
     shadermodel_list.push_back(new ModelObj1("model/nanosuit/nanosuit.obj"));
     shadermodel_list.push_back(new ModelObj1());
     shadermodel_list.push_back(new ModelObj1("model/NPC_Avatar_Girl_Sword_Chiori/NPC_Avatar_Girl_Sword_Chiori (merge).fbx",0.5,0.2,6.0f));
-    shadermodel_list.push_back(new ModelObj1("model/antique-desk/source/001_SmallTableSF_low.fbx"));
+    shadermodel_list.push_back(new ModelObj1("model/town/town.obj"));
     //shadermodel_list.push_back(new ModelObj1(m_path + "model/tree.fbx"));
 
     groundobj = new Object(glm::vec3(27, -1, 25), groundshadermdl);//groundshadermdl
@@ -367,9 +367,9 @@ int main(){
     for(int i=0;i<5;i++){
         Models.push_back(new Object(glm::vec3(-3,-0.5,i-2),shadermodel_list[0]));
     }
-    Models.push_back(new Object(glm::vec3(5, -1, -4), shadermodel_list[5]));
-    Models.back()->scalemat = glm::scale(Models.back()->scalemat, glm::vec3(0.1f));
-    Models.back()->scalemat = glm::rotate(Models.back()->scalemat,glm::radians(-90.0f), glm::vec3(0, 1, 0));
+    Models.push_back(new Object(glm::vec3(5, -1, -4.5), shadermodel_list[5]));
+    Models.back()->scalemat = glm::scale(Models.back()->scalemat, glm::vec3(5.0f));
+    //Models.back()->scalemat = glm::rotate(Models.back()->scalemat,glm::radians(-90.0f), glm::vec3(0, 1, 0));
 
     //std::cout<<shadermodel_list[0]->objlist.size()<<std::endl;
     // tell GLFW to capture our mouse
