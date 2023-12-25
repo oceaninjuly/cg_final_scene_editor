@@ -781,7 +781,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
         isRotate = FALSE;
     }
 
-    if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj) {
+    if (isRotate&&(GLuint)target_obj!=(GLuint)groundobj&&(glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)) {
         float sensity = 0.005f;
         glm::mat3 inverse_ = glm::inverse(glm::mat3(target_obj->scalemat));
         glm::vec3 horizonal_axis =  glm::normalize(inverse_ * glm::cross(camera.Forward, camera.WorldUp));
